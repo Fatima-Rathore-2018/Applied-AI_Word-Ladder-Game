@@ -48,7 +48,49 @@ def SequenceOfSteps(WordLadderGraph, startState, goalState):
     finalPath.insert(0, startState)
     print(finalPath)
 
+# Function to find the node with minimum path cost.
+def findMinimumPathCostNode(frontier):
+    minimumCost = float('inf')
+    minimumNode = None
+    for node in frontier:
+        if minimumCost > frontier[node][1]:
+            minimumCost = frontier[node][1]
+            minimumNode = node
+    return minimumNode
 
+# Function for Uniform-Cost Search (UCS)
+def uniformCostSearch(WordLadderGraph, startState, goalState):
+    frontier = dict()
+    explored = []
+    frontier[startState] = (None, 0) # Stores nodes with their parent and cost
+
+    while len(frontier) != 0:
+        currentNode = findMinimumPathCostNode(frontier)
+        currentCost = frontier[currentNode][1]
+        del frontier[currentNode]
+
+        # Goal Test.
+        if WordLadderGraph[currentNode].state == goalState:
+            return SequenceOfSteps(WordLadderGraph, startState, goalState)
+        
+        # Add the node to explored list.
+        explored.append(currentNode)
+
+        #Expand the children of current node.
+        for childNode in WordLadderGraph[currentNode].actions:
+            updatedCost = currentCost + childNode[1]
+            if childNode[0] not in frontier and childNode[0] not in explored:
+                WordLadderGraph[childNode[0]].parent = currentNode
+                WordLadderGraph[childNode[0]].pathCost = updatedCost
+                frontier[childNode[0]] = (currentNode, updatedCost)
+            elif childNode[0] in frontier and frontier[childNode[0]][1] > updatedCost:
+                frontier[childNode[0]] = (currentNode, updatedCost)
+                WordLadderGraph[childNode[0]].parent = frontier[childNode[0]][0]
+                WordLadderGraph[childNode[0]].pathCost = frontier[childNode[0]][1]
+
+        print(explored)
+
+                
 # Function to find the shortest path using Breadth First Search.
 def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
     frontier = dict() #To-Be-Explored Nodes -> FIFO QUEUE
@@ -74,6 +116,7 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
 
         #Expand the currentNode/ Explore the child nodes of the current node.
         for childNode in WordLadderGraph[currentNode].actions:
+
             #If the childNode is not in frontier and explored
             if childNode[0] not in frontier and childNode[0] not in explored:
                 
@@ -86,6 +129,7 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
                 WordLadderGraph[childNode[0]].parent = currentNode
                 
                 frontier[childNode[0]] = currentNode
+
         print(explored)
 
                 
@@ -110,7 +154,11 @@ def main():
     for word, node in wordLadderGraph.items():
         print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}, {node.totalCost}")
 
+    # print("Breadth First Search: ")
     BreadthFirstSearch(wordLadderGraph, "cat", "dog")
+
+    print("Uniform Cost Search: ")
+    uniformCostSearch(wordLadderGraph, "cat", "dog")
 
 if __name__ == "__main__":
     main()
