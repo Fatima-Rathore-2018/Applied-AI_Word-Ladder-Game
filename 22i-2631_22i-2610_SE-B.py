@@ -67,15 +67,22 @@ def findHeuristicCost(startState, goalState):
     
     return heuristicCost
 
+def AssigningHeuristicCost(WorLadderGraph, goalState):
+    for node in WorLadderGraph:
+        WorLadderGraph[node].heuristic = findHeuristicCost(node, goalState)
+    
+    return WorLadderGraph
+
 #Function for A* Search 
 def AStarSearch(WordLadderGraph, startState, goalState):
     frontier = dict()
-    explored = []
-    frontier[startState] = (None, 0, findHeuristicCost(startState, goalState)) # Stores nodes with their parent and cost
+    explored = dict()
+    frontier[startState] = (None, WordLadderGraph[startState].heuristic) # Stores nodes with their parent and cost
 
     while len(frontier) != 0:
         currentNode = findMinimumPathCostNode(frontier)
-        currentCost = frontier[currentNode][1]
+        currentCost = WordLadderGraph[currentNode].pathCost
+        heuristicCost = WordLadderGraph[currentNode].heuristic
         del frontier[currentNode]
 
         # Goal Test.
@@ -83,19 +90,37 @@ def AStarSearch(WordLadderGraph, startState, goalState):
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
-        explored.append(currentNode)
+        explored[currentNode] = (WordLadderGraph[currentNode].parent, currentCost + heuristicCost)
+  
+       # Explore child nodes for cost
+        for child in  WordLadderGraph[currentNode].actions:
+            currentCost=child[1] +  WordLadderGraph[currentNode].totalCost
+            heuristicCost =  WordLadderGraph[child[0]].heuristic
 
-        #Expand the children of current node.
-        for childNode in WordLadderGraph[currentNode].actions:
-            updatedCost = currentCost + childNode[1] 
-            if childNode[0] not in frontier and childNode[0] not in explored:
-                WordLadderGraph[childNode[0]].parent = currentNode
-                WordLadderGraph[childNode[0]].pathCost = updatedCost
-                frontier[childNode[0]] = (currentNode, updatedCost + findHeuristicCost(childNode[0], goalState))
-            elif childNode[0] in frontier and frontier[childNode[0]][1] > updatedCost + findHeuristicCost(childNode[0], goalState):
-                frontier[childNode[0]] = (currentNode, updatedCost + findHeuristicCost(childNode[0], goalState))
-                WordLadderGraph[childNode[0]].parent = frontier[childNode[0]][0]
-                WordLadderGraph[childNode[0]].pathCost = frontier[childNode[0]][1]
+            # if already looked at or initial state or cost lesser than current, continue
+            if child[0] in explored:
+                if  WordLadderGraph[child[0]].parent==currentNode or child[0]==startState or \
+                    explored[child[0]][1] <= currentCost + heuristicCost:
+                    continue
+
+            # if not in frontier - add to it
+            if child[0] not in frontier:
+                WordLadderGraph[child[0]].parent=currentNode
+                WordLadderGraph[child[0]].totalCost=currentCost
+                frontier[child[0]]=( WordLadderGraph[child[0]].parent, currentCost + heuristicCost)
+
+            # if in frontier - check cost
+            else:
+                #if cost is lesser - update graph with frontier
+                if frontier[child[0]][1] < currentCost + heuristicCost:
+                    WordLadderGraph[child[0]].parent=frontier[child[0]][0]
+                    WordLadderGraph[child[0]].totalCost=frontier[child[0]][1] - heuristicCost
+
+                # if cost is higher - update graph with current cost
+                else:
+                    frontier[child[0]]=(currentNode, currentCost + heuristicCost)
+                    WordLadderGraph[child[0]].parent=frontier[child[0]][0]
+                    WordLadderGraph[child[0]].totalCost=currentCost
 
         print(explored)
 
@@ -202,7 +227,8 @@ def main():
     uniformCostSearch(wordLadderGraph, "cat", "dog")
 
     print("A* Search: ")
-    AStarSearch(wordLadderGraph, "cat", "dog")
+    graph = AssigningHeuristicCost(wordLadderGraph, "dog")
+    AStarSearch(graph, "cat", "dog")
 
 if __name__ == "__main__":
     main()
