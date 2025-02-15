@@ -5,20 +5,19 @@ import string
 
 #Creation of Class Node
 class WordNode:
-    def __init__(self, state, parent, actions, heuristic, pathCost, totalCost):
+    def __init__(self, state, parent, actions, heuristic, pathCost):
         self.state = state
         self.parent = parent
         self.actions = actions
         self.heuristic = heuristic # h(n)
         self.pathCost = pathCost # g(n)
-        self.totalCost = heuristic + pathCost # f(n) = g(n) + h(n) 
 
 # Function to create a graph.
 def createGraph(wordLadderDictionary):
     #Creation of Graph
     WordLadderGraph = {}
     for word in wordLadderDictionary:
-        wordNode = WordNode(word, None, [], 0, 0, 0)
+        wordNode = WordNode(word, None, [], 0, 0)
         WordLadderGraph[word] = wordNode
 
         wordCharacters = list(word) # Convert the word into a list of characters.
@@ -87,6 +86,8 @@ def AStarSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
+            for word, node in WordLadderGraph.items():
+                print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}")
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -94,7 +95,7 @@ def AStarSearch(WordLadderGraph, startState, goalState):
   
        # Explore child nodes for cost
         for child in  WordLadderGraph[currentNode].actions:
-            currentCost=child[1] +  WordLadderGraph[currentNode].totalCost
+            currentCost=child[1] +  WordLadderGraph[currentNode].pathCost
             heuristicCost =  WordLadderGraph[child[0]].heuristic
 
             # if already looked at or initial state or cost lesser than current, continue
@@ -117,7 +118,7 @@ def AStarSearch(WordLadderGraph, startState, goalState):
                     WordLadderGraph[child[0]].parent=frontier[child[0]][0]
                     WordLadderGraph[child[0]].pathCost=currentCost
 
-        print(explored)
+        #print(explored)
 
 # Function for Uniform-Cost Search (UCS)
 def uniformCostSearch(WordLadderGraph, startState, goalState):
@@ -132,6 +133,9 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
+             # Print graph.
+            for word, node in WordLadderGraph.items():
+                print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}")
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -177,7 +181,7 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
 
         #Expand the currentNode/ Explore the child nodes of the current node.
         for childNode in WordLadderGraph[currentNode].actions:
-
+            print(explored)
             #If the childNode is not in frontier and explored
             if childNode[0] not in frontier and childNode[0] not in explored:
                 
@@ -191,7 +195,7 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
                 
                 frontier[childNode[0]] = currentNode
 
-        print(explored)
+       
 
                 
 # Main Function.
@@ -213,17 +217,17 @@ def main():
 
     # Print graph.
     for word, node in wordLadderGraph.items():
-        print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}, {node.totalCost}")
+        print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}")
 
     print("Breadth First Search: ")
-    BreadthFirstSearch(wordLadderGraph, "cat", "dog")
+    BreadthFirstSearch(wordLadderGraph, "big", "dog")
 
     print("Uniform Cost Search: ")
-    uniformCostSearch(wordLadderGraph, "cat", "dog")
+    uniformCostSearch(wordLadderGraph, "big", "dog")
 
     print("A* Search: ")
     graph = AssigningHeuristicCost(wordLadderGraph, "dog")
-    AStarSearch(graph, "cat", "dog")
+    AStarSearch(graph, "big", "dog")
 
 if __name__ == "__main__":
     main()
