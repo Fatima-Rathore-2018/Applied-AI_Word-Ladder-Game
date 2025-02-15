@@ -11,3 +11,14 @@ WordLadderDictionary = {}
 for word in wordsData: 
     if 3 <= len(word) <= 6:
         WordLadderDictionary[word] = wordsData[word]
+
+#Creation of Class Node
+class WordNode:
+    def __init__(self, state, parent, actions, pathCost):
+        self.state = state,
+        self.parent = parent,
+        self.actions = actions,
+        self.pathCost = pathCost
+
+#Creation of Graph
+WordLadderGraph = {}
