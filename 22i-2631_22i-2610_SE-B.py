@@ -58,6 +58,47 @@ def findMinimumPathCostNode(frontier):
             minimumNode = node
     return minimumNode
 
+#Function to calcuate the heuristic cost of the current word and the goal word.
+def findHeuristicCost(startState, goalState):
+    heuristicCost = 0
+    for i in range(len(goalState)):
+        if(startState[i] != goalState[i]):
+            heuristicCost = heuristicCost + 1
+    
+    return heuristicCost
+
+#Function for A* Search 
+def AStarSearch(WordLadderGraph, startState, goalState):
+    frontier = dict()
+    explored = []
+    frontier[startState] = (None, 0, findHeuristicCost(startState, goalState)) # Stores nodes with their parent and cost
+
+    while len(frontier) != 0:
+        currentNode = findMinimumPathCostNode(frontier)
+        currentCost = frontier[currentNode][1]
+        del frontier[currentNode]
+
+        # Goal Test.
+        if WordLadderGraph[currentNode].state == goalState:
+            return SequenceOfSteps(WordLadderGraph, startState, goalState)
+        
+        # Add the node to explored list.
+        explored.append(currentNode)
+
+        #Expand the children of current node.
+        for childNode in WordLadderGraph[currentNode].actions:
+            updatedCost = currentCost + childNode[1] 
+            if childNode[0] not in frontier and childNode[0] not in explored:
+                WordLadderGraph[childNode[0]].parent = currentNode
+                WordLadderGraph[childNode[0]].pathCost = updatedCost
+                frontier[childNode[0]] = (currentNode, updatedCost + findHeuristicCost(childNode[0], goalState))
+            elif childNode[0] in frontier and frontier[childNode[0]][1] > updatedCost + findHeuristicCost(childNode[0], goalState):
+                frontier[childNode[0]] = (currentNode, updatedCost + findHeuristicCost(childNode[0], goalState))
+                WordLadderGraph[childNode[0]].parent = frontier[childNode[0]][0]
+                WordLadderGraph[childNode[0]].pathCost = frontier[childNode[0]][1]
+
+        print(explored)
+
 # Function for Uniform-Cost Search (UCS)
 def uniformCostSearch(WordLadderGraph, startState, goalState):
     frontier = dict()
@@ -154,11 +195,14 @@ def main():
     for word, node in wordLadderGraph.items():
         print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}, {node.totalCost}")
 
-    # print("Breadth First Search: ")
+    print("Breadth First Search: ")
     BreadthFirstSearch(wordLadderGraph, "cat", "dog")
 
     print("Uniform Cost Search: ")
     uniformCostSearch(wordLadderGraph, "cat", "dog")
+
+    print("A* Search: ")
+    AStarSearch(wordLadderGraph, "cat", "dog")
 
 if __name__ == "__main__":
     main()
