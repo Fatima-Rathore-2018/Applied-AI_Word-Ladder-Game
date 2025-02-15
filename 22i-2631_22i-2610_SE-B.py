@@ -30,23 +30,22 @@ def createGraph(wordLadderDictionary):
                     wordCharacters[index] = letter
                     updatedWord = "".join(wordCharacters) # Convert list of characters into a string.
                     
-                    if updatedWord in wordLadderDictionary:
+                    if wordLadderDictionary.get(updatedWord) is not None:
                         WordLadderGraph[word].actions.append((updatedWord, 1))    
 
+            wordCharacters[index] = originalCharacter
 
     return WordLadderGraph
 
 
-def SequenceOfSteps(WordLadderGraph, goalState):
+def SequenceOfSteps(WordLadderGraph, startState, goalState):
     finalPath = []
-    rootNodeState = next(iter(WordLadderGraph))
-    rootNode = WordLadderGraph.get(rootNodeState, None)
     currentNode = WordLadderGraph.get(goalState, None)
-    while currentNode.state != rootNode.state:
+    while currentNode.state != startState:
         finalPath.insert(0, currentNode.state)
-        currentNode = currentNode.parent
+        currentNode = WordLadderGraph[currentNode.parent]
     
-    finalPath.insert(0, currentNode.state)
+    finalPath.insert(0, startState)
     print(finalPath)
 
 
@@ -56,8 +55,8 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
     explored = [] #Nodes that have been explored.
 
     #Goal Test is performed.
-    if WordLadderGraph[startState].state == goalState:
-        return SequenceOfSteps(WordLadderGraph, goalState)
+    if startState == goalState:
+        return SequenceOfSteps(WordLadderGraph,startState,goalState)
     
     frontier[startState] = (None) # FIFO Queue with intial state as it's only element
 
@@ -79,13 +78,14 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
             if childNode[0] not in frontier and childNode[0] not in explored:
                 
                 #Perform goal test, if passed return.
-                if WordLadderGraph[currentNode].state == goalState:
-                    return SequenceOfSteps(WordLadderGraph, goalState)
+                if childNode[0] == goalState:
+                    WordLadderGraph[childNode[0]].parent = currentNode
+                    return SequenceOfSteps(WordLadderGraph, startState, goalState)
                 
                 #Else add the childNode to frontier
                 WordLadderGraph[childNode[0]].parent = currentNode
                 
-                frontier[childNode[0]] = (WordLadderGraph[childNode[0]].parent)
+                frontier[childNode[0]] = currentNode
         print(explored)
 
                 
@@ -110,7 +110,7 @@ def main():
     for word, node in wordLadderGraph.items():
         print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.pathCost}, {node.totalCost}")
 
-    BreadthFirstSearch(wordLadderGraph, "cat", "cot")
+    BreadthFirstSearch(wordLadderGraph, "cat", "dog")
 
 if __name__ == "__main__":
     main()
