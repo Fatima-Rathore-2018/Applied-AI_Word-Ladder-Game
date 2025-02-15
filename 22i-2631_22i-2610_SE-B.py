@@ -86,7 +86,7 @@ def AStarSearch(WordLadderGraph, startState, goalState):
         del frontier[currentNode]
 
         # Goal Test.
-        if WordLadderGraph[currentNode].state == goalState:
+        if currentNode == goalState:
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -106,21 +106,16 @@ def AStarSearch(WordLadderGraph, startState, goalState):
             # if not in frontier - add to it
             if child[0] not in frontier:
                 WordLadderGraph[child[0]].parent=currentNode
-                WordLadderGraph[child[0]].totalCost=currentCost
+                WordLadderGraph[child[0]].pathCost=currentCost
                 frontier[child[0]]=( WordLadderGraph[child[0]].parent, currentCost + heuristicCost)
 
             # if in frontier - check cost
             else:
                 #if cost is lesser - update graph with frontier
-                if frontier[child[0]][1] < currentCost + heuristicCost:
-                    WordLadderGraph[child[0]].parent=frontier[child[0]][0]
-                    WordLadderGraph[child[0]].totalCost=frontier[child[0]][1] - heuristicCost
-
-                # if cost is higher - update graph with current cost
-                else:
+                if frontier[child[0]][1] > currentCost + heuristicCost:
                     frontier[child[0]]=(currentNode, currentCost + heuristicCost)
                     WordLadderGraph[child[0]].parent=frontier[child[0]][0]
-                    WordLadderGraph[child[0]].totalCost=currentCost
+                    WordLadderGraph[child[0]].pathCost=currentCost
 
         print(explored)
 
@@ -136,7 +131,7 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
         del frontier[currentNode]
 
         # Goal Test.
-        if WordLadderGraph[currentNode].state == goalState:
+        if currentNode == goalState:
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
