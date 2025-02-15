@@ -135,7 +135,7 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
-             # Print graph.
+            # Print graph.
             # for word, node in WordLadderGraph.items():
             #     print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.totalCost}")
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
@@ -197,21 +197,6 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
                 
                 frontier[childNode[0]] = currentNode
 
-# Function to allow players to choose level of difficulty and word selection.
-def chooseGameMode():
-    print("Choose difficulty level:")
-    print("1. Beginner Mode (Simple word ladders)")
-    print("2. Advanced Mode (Longer and complex ladders)")
-    print("3. Challenge Mode (Restricted Letters, banned words etc.)")
-    difficulty = input("Enter your choice (1/2/3): ")
-
-    print("Choose word selection mode:")
-    print("1. Enter start and end words")
-    print("2. Automatic selection of start and end words")
-    wordSelectionMode = input("Enter your choice (1/2/3): ")
-
-    return difficulty, wordSelectionMode
-
 # Function to give hints
 def giveHint(path, currentWord):
     if currentWord in path:
@@ -239,6 +224,9 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
         print("Current word:", currentWord, " Target word: ", goalWord)
         print("Explored Path: ", path)
         requestForHint = input("\nDo you want a hint? (yes/no): ")
+        while requestForHint != "yes" and requestForHint != "no":
+            print|("Invalid Input. Enter yes/no.") 
+            requestForHint = input("\nDo you want a hint? (yes/no): ")
         if requestForHint == "yes":
             chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ")
             if chooseSearchAlgorithm == "bfs":
@@ -271,6 +259,38 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
     else:
         print("Game Over, Loser.")
 
+# Function to allow players to choose level of difficulty and word selection.
+def chooseGameMode():
+    print("Choose word selection mode:")
+    print("1. Enter start and end words")
+    print("2. Automatic selection of start and end words")
+    print("3. Exit")
+    wordSelectionMode = int(input("Enter your choice (1/2/3): "))
+    while wordSelectionMode < 1 or wordSelectionMode > 3:
+        print("Invalid Input.")
+        print("Choose word selection mode:")
+        print("1. Enter start and end words")
+        print("2. Automatic selection of start and end words")
+        print("3. Exit")
+        wordSelectionMode = int(input("Enter your choice (1/2/3): "))
+
+    difficulty = -1
+
+    # if wordSelectionMode == 2:
+    #     print("Choose difficulty level:")
+    #     print("1. Beginner Mode (Simple word ladders)")
+    #     print("2. Advanced Mode (Longer and complex ladders)")
+    #     print("3. Challenge Mode (Restricted Letters, banned words etc.)")
+    #     difficulty = int(input("Enter your choice (1/2/3): "))
+        
+    #     while wordSelectionMode < 1 or wordSelectionMode > 3:
+    #         print("Choose difficulty level:")
+    #         print("1. Beginner Mode (Simple word ladders)")
+    #         print("2. Advanced Mode (Longer and complex ladders)")
+    #         print("3. Challenge Mode (Restricted Letters, banned words etc.)")
+    #         difficulty = int(input("Enter your choice (1/2/3): "))
+
+    return difficulty, wordSelectionMode
 
 # Main Function.
 def main():
@@ -289,37 +309,40 @@ def main():
     # Creating the graph.
     wordLadderGraph = createGraph(WordLadderDictionary)
 
-    # Choose difficulty and selection mode.
-    # difficuly, selectionMode = chooseGameMode()
+    while 1:
+        difficuly, selectionMode = chooseGameMode()
 
-    # Print graph.
-    # for word, node in wordLadderGraph.items():
-    #     print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.totalCost}")
+        if selectionMode == 3:
+            exit(0)
+        elif selectionMode == 2:
+            #TO BE DETERMINED :(
+            startWord = "dog"
+            goalWord = "bat"
+        else: 
+            startWord = input("Enter start word: ")
+            while startWord not in WordLadderDictionary:
+                print("Error: Start word does not exist in the dictionary.\n")
+                startWord = input("Enter start word: ")
 
-    startWord = "dog"
-    goalWord = "bat"
+            goalWord = input("Enter goal word: ")
+            while goalWord not in WordLadderDictionary:
+                print("Error: Goal word does not exist in the dictionary.\n")
+                goalWord = input("Enter goal word: ")
 
-    # Validating if start and end word entered exist in the dictionary.
-    if startWord not in wordLadderGraph:
-        print("Error: Start word does not exist in the dictionary.\n")
-    elif goalWord not in wordLadderGraph:
-         print("Error: Goal word does not exist in the dictionary.\n")
+            while len(startWord) != len(goalWord):
+                startWord = input("Enter start word: ")
+                while startWord not in WordLadderDictionary:
+                    print("Error: Start word does not exist in the dictionary.\n")
+                    startWord = input("Enter start word: ")
 
-    # print("---------- Breadth First Search: ----------")
-    #exploredPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
+                goalWord = input("Enter goal word: ")
+                while goalWord not in WordLadderDictionary:
+                    print("Error: Goal word does not exist in the dictionary.\n")
+                    goalWord = input("Enter goal word: ")
 
-    # print("---------- Uniform Cost Search: ----------")
-    #uniformCostSearch(wordLadderGraph, startWord, goalWord)
-
-    # print("---------- A* Search: ----------")
-    graphHeuristics = AssigningHeuristicCost(wordLadderGraph, goalWord)
-    #AStarSearch(graph, startWord, goalWord)
-
-    # print("\nExplored Path: ")
-    # print(exploredPath)
-
-    # Game play.
-    gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics)
+        graphHeuristics = AssigningHeuristicCost(wordLadderGraph, goalWord)
+        # Game play.
+        gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics)
 
 if __name__ == "__main__":
     main()
