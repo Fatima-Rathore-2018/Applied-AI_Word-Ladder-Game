@@ -13,29 +13,37 @@ class WordNode:
         self.totalCost = totalCost # g(n)
 
 # Function to create a graph.
-def createGraph(wordLadderDictionary):
+def createGraph(wordLadderDictionary, difficulty):
+    wordLength = 0
+    if difficulty == 1: # Beginner's mode.
+        wordLength = 3
+    elif difficulty == 2: # Advanced mode.
+        wordLength = 4
+    else: # Challenge mode.
+        wordLength = 5
+
     #Creation of Graph
     WordLadderGraph = {}
     for word in wordLadderDictionary:
-        wordNode = WordNode(word, None, [], 0, 0)
-        WordLadderGraph[word] = wordNode
+        if len(word) == wordLength:
+            wordNode = WordNode(word, None, [], 0, 0)
+            WordLadderGraph[word] = wordNode
 
-        wordCharacters = list(word) # Convert the word into a list of characters.
-        for index in range(len(word)):
-            originalCharacter = wordCharacters[index]
+            wordCharacters = list(word) # Convert the word into a list of characters.
+            for index in range(len(word)):
+                originalCharacter = wordCharacters[index]
 
-            for letter in string.ascii_lowercase: # Iterate through all the letters of the alphabet.
-                if letter != originalCharacter:
-                    wordCharacters[index] = letter
-                    updatedWord = "".join(wordCharacters) # Convert list of characters into a string.
-                    
-                    if wordLadderDictionary.get(updatedWord) is not None:
-                        WordLadderGraph[word].actions.append((updatedWord, 1))    
+                for letter in string.ascii_lowercase: # Iterate through all the letters of the alphabet.
+                    if letter != originalCharacter:
+                        wordCharacters[index] = letter
+                        updatedWord = "".join(wordCharacters) # Convert list of characters into a string.
+                        
+                        if wordLadderDictionary.get(updatedWord) is not None:
+                            WordLadderGraph[word].actions.append((updatedWord, 1))    
 
-            wordCharacters[index] = originalCharacter
+                wordCharacters[index] = originalCharacter
 
     return WordLadderGraph
-
 
 def SequenceOfSteps(WordLadderGraph, startState, goalState):
     finalPath = []
@@ -279,6 +287,7 @@ def chooseGameMode():
     print("2. Automatic selection of start and end words")
     print("3. Exit")
     wordSelectionMode = int(input("Enter your choice (1/2/3): "))
+
     while wordSelectionMode < 1 or wordSelectionMode > 3:
         print("Invalid Input.")
         print("Choose word selection mode:")
@@ -287,7 +296,7 @@ def chooseGameMode():
         print("3. Exit")
         wordSelectionMode = int(input("Enter your choice (1/2/3): "))
 
-    difficulty = -1
+    difficulty = 1
 
     # if wordSelectionMode == 2:
     #     print("Choose difficulty level:")
@@ -314,24 +323,24 @@ def main():
     #Creating a dictionary for the game.
     WordLadderDictionary = dict()
 
-    #Filtering out words with length greater than equal to 3 and less than equal to 6.
+    #Filtering out words with length greater than equal to 3 and less than 6.
     for word in wordsData: 
-        if 3 <= len(word) <= 6:
+        if 3 <= len(word) < 6:
             WordLadderDictionary[word] = wordsData[word]
 
-    # Creating the graph.
-    wordLadderGraph = createGraph(WordLadderDictionary)
-
     while 1:
-        difficuly, selectionMode = chooseGameMode()
-
+        difficulty, selectionMode = chooseGameMode()
+        difficulty = 2
+        # Creating the graph.
+        wordLadderGraph = createGraph(WordLadderDictionary, difficulty)
+    
         if selectionMode == 3:
             exit(0)
         elif selectionMode == 2:
             #TO BE DETERMINED :(
-            startWord = "dog"
-            goalWord = "bat"
-        else: 
+            startWord = "fool"
+            goalWord = "sage"
+        elif selectionMode == 3: 
             startWord = input("Enter start word: ")
             while startWord not in WordLadderDictionary:
                 print("Error: Start word does not exist in the dictionary.\n")

@@ -1,2 +1,2 @@
- # print("\nExplored Path: ")
-    # print(exploredPath)
+ # print(startState[i])
+            # print(goalState[i])
