@@ -230,7 +230,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
         print("Explored Path: ", path)
         requestForHint = input("\nDo you want a hint? (yes/no): ")
         while requestForHint != "yes" and requestForHint != "no":
-            print|("Invalid Input. Enter yes/no.") 
+            print ("Invalid Input. Enter yes/no: ") 
             requestForHint = input("\nDo you want a hint? (yes/no): ")
         if requestForHint == "yes":
             score -= 3 # Score will decrease by 3 for each hint requested.
