@@ -321,7 +321,7 @@ def chooseGameMode():
 # Main Function.
 def main():
     #Reading words from words_dictionary.json
-    with open("words25000.json", "r") as words_dictonary:
+    with open("Dicticonay.json", "r") as words_dictonary:
         wordsData = json.load(words_dictonary)
 
     #Creating a dictionary for the game.
@@ -334,7 +334,7 @@ def main():
 
     while 1:
         #difficulty, selectionMode = chooseGameMode()
-        difficulty = 1
+        difficulty = 2
         selectionMode = 1
         # Creating the graph.
         wordLadderGraph = createGraph(WordLadderDictionary, difficulty)
