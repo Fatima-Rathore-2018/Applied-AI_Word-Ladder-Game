@@ -220,7 +220,12 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
     path = [currentWord]
     numberOfTurns = len(startWord) * 2
     exploredPath = []
+    optimalNumberOfMoves = len(AStarSearch(graphHeuristics, startWord, goalWord))
+    score = optimalNumberOfMoves * 10
+    print("Current Score: ", score, " - Your score will decrease each extra move you make.\n")
+
     while currentWord != goalWord:
+        print("Current Score: ", score)
         print("Current word:", currentWord, " Target word: ", goalWord)
         print("Explored Path: ", path)
         requestForHint = input("\nDo you want a hint? (yes/no): ")
@@ -228,6 +233,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
             print|("Invalid Input. Enter yes/no.") 
             requestForHint = input("\nDo you want a hint? (yes/no): ")
         if requestForHint == "yes":
+            score -= 3 # Score will decrease by 3 for each hint requested.
             chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ")
             if chooseSearchAlgorithm == "bfs":
                 exploredPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
@@ -247,6 +253,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
             currentWord = playerChoice
             path.append(currentWord)
         else:
+            score -= 7 # Score will decrease by 7 if word does not exist in the ladder.
             print("Invalid word choice. Try again.")
 
         numberOfTurns -= 1
@@ -254,10 +261,16 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
             print("Number of turns have finished.")
             break
 
+        # Check if score is to be updated or not.
+        if numberOfTurns > optimalNumberOfMoves:
+            score -= 5
+
     if currentWord == goalWord:
         print("Congratulations! You have completed the word ladder!")
     else:
-        print("Game Over, Loser.")
+        print("Game Over, Loser.") 
+
+    print("----------- Final Score: ", score)
 
 # Function to allow players to choose level of difficulty and word selection.
 def chooseGameMode():
