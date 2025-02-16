@@ -229,6 +229,10 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
     numberOfTurns = len(startWord) * 2
     exploredPath = []
     optimalNumberOfMoves = len(AStarSearch(graphHeuristics, startWord, goalWord))
+    print("\n----- BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
+    print("----- UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
+    print("----- A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
+    print("\n")
     score = optimalNumberOfMoves * 10
     print("Current Score: ", score, " - Your score will decrease each extra move you make.\n")
 
@@ -317,7 +321,7 @@ def chooseGameMode():
 # Main Function.
 def main():
     #Reading words from words_dictionary.json
-    with open("test_file.json", "r") as words_dictonary:
+    with open("words25000.json", "r") as words_dictonary:
         wordsData = json.load(words_dictonary)
 
     #Creating a dictionary for the game.
@@ -329,8 +333,9 @@ def main():
             WordLadderDictionary[word] = wordsData[word]
 
     while 1:
-        difficulty, selectionMode = chooseGameMode()
-        difficulty = 2
+        #difficulty, selectionMode = chooseGameMode()
+        difficulty = 1
+        selectionMode = 1
         # Creating the graph.
         wordLadderGraph = createGraph(WordLadderDictionary, difficulty)
     
@@ -340,7 +345,7 @@ def main():
             #TO BE DETERMINED :(
             startWord = "fool"
             goalWord = "sage"
-        elif selectionMode == 3: 
+        elif selectionMode == 1: 
             startWord = input("Enter start word: ")
             while startWord not in WordLadderDictionary:
                 print("Error: Start word does not exist in the dictionary.\n")
@@ -363,8 +368,14 @@ def main():
                     goalWord = input("Enter goal word: ")
 
         graphHeuristics = AssigningHeuristicCost(wordLadderGraph, goalWord)
+
+        print("\n----- BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
+        print("----- UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
+        print("----- A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
+        print("\n")
+
         # Game play.
-        gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics)
+        # gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics)
 
 if __name__ == "__main__":
     main()
