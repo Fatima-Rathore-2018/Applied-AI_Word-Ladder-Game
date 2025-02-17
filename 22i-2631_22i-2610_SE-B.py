@@ -13,7 +13,7 @@ class WordNode:
         self.totalCost = totalCost # g(n)
 
 # Function to create a graph.
-def createGraph(wordLadderDictionary, difficulty):
+def createGraph(wordLadderDictionary, difficulty, forbiddenWord, restrictedLetter):
     wordLength = 0
     if difficulty == 1: # Beginner's mode.
         wordLength = 3
@@ -25,7 +25,7 @@ def createGraph(wordLadderDictionary, difficulty):
     #Creation of Graph
     WordLadderGraph = {}
     for word in wordLadderDictionary:
-        if len(word) == wordLength:
+        if len(word) == wordLength and word != forbiddenWord:
             wordNode = WordNode(word, None, [], 0, 0)
             WordLadderGraph[word] = wordNode
 
@@ -34,11 +34,11 @@ def createGraph(wordLadderDictionary, difficulty):
                 originalCharacter = wordCharacters[index]
 
                 for letter in string.ascii_lowercase: # Iterate through all the letters of the alphabet.
-                    if letter != originalCharacter:
+                    if letter != originalCharacter and letter != restrictedLetter:
                         wordCharacters[index] = letter
                         updatedWord = "".join(wordCharacters) # Convert list of characters into a string.
                         
-                        if wordLadderDictionary.get(updatedWord) is not None:
+                        if wordLadderDictionary.get(updatedWord) is not None and updatedWord != forbiddenWord:
                             WordLadderGraph[word].actions.append((updatedWord, 1))    
 
                 wordCharacters[index] = originalCharacter
@@ -222,7 +222,8 @@ def validateExistenceOfWordInActions(currentWord, playerChoice, wordLadderGraph)
     return False
 
 # The gameplay function.
-def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
+def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter):
+    print(forbiddenWord)
     print("Inside gameplay function.")
     currentWord = startWord
     path = [currentWord]
@@ -261,6 +262,71 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics):
                 break
         
         playerChoice = input("Enter next word: ")
+
+        # Check if the word entered is a banned word.
+        while playerChoice == forbiddenWord:
+            print(playerChoice, " is a banned word. Please choose another one.")
+            requestForHint = input("\nDo you want a hint? (yes/no): ")
+            while requestForHint != "yes" and requestForHint != "no":
+                print ("Invalid Input. Enter yes/no: ") 
+                requestForHint = input("\nDo you want a hint? (yes/no): ")
+            if requestForHint == "yes":
+                score -= 3 # Score will decrease by 3 for each hint requested.
+                chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ")
+                if chooseSearchAlgorithm == "bfs":
+                    exploredPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
+                elif chooseSearchAlgorithm == "ucs":
+                    exploredPath = uniformCostSearch(wordLadderGraph, startWord, goalWord)
+                elif chooseSearchAlgorithm == "astar":
+                    exploredPath = AStarSearch(graphHeuristics, startWord, goalWord)
+
+                nextWord = giveHint(exploredPath, currentWord)
+                if nextWord is not None:
+                    print("Hint for next word:", nextWord)
+                else:
+                    break
+
+            playerChoice = input("Now, enter word again: ")
+
+        # Check if the word entered has a restrcited letter.
+        while True:
+            isValid = True
+            for letter in playerChoice:
+                if letter == restrictedLetter:
+                    print("The word ", playerChoice, " has a restricted letter ", letter)
+                    requestForHint = input("\nDo you want a hint? (yes/no): ")
+                    while requestForHint != "yes" and requestForHint != "no":
+                        print ("Invalid Input. Enter yes/no: ") 
+                        requestForHint = input("\nDo you want a hint? (yes/no): ")
+                    if requestForHint == "yes":
+                        score -= 3 # Score will decrease by 3 for each hint requested.
+                        chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ")
+                        if chooseSearchAlgorithm == "bfs":
+                            exploredPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
+                        elif chooseSearchAlgorithm == "ucs":
+                            exploredPath = uniformCostSearch(wordLadderGraph, startWord, goalWord)
+                        elif chooseSearchAlgorithm == "astar":
+                            exploredPath = AStarSearch(graphHeuristics, startWord, goalWord)
+
+                        nextWord = giveHint(exploredPath, currentWord)
+                        if nextWord is not None:
+                            print("Hint for next word:", nextWord)
+                        else:
+                            break
+                    playerChoice = input("Now, enter word again: ")
+                    isValid = False
+
+            if isValid:
+                break
+        
+        # isValid = 0
+        # while isValid == 0:
+        #     for letter in playerChoice:
+        #         if letter == restrictedLetter:
+        #             print("The word ", playerChoice, " has a restricted letter ", letter)
+
+
+
         if validateExistenceOfWordInActions(currentWord, playerChoice, wordLadderGraph):
             currentWord = playerChoice
             path.append(currentWord)
@@ -320,12 +386,28 @@ def chooseGameMode():
 
 # Main Function.
 def main():
+    # Predefined lists:
+    # Beginner Mode.
+    beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
+
+    # Advanced Mode.
+    advancedModeList = [("cold", "fall"), ("head", "tail"), ("slow", "down"), ("calf", "lamb"), ("many", "rule"), ("lost", "here"), ("hunt", "gone"), ("rich", "poor"), ("hook", "fish"), ("coal", "mine"), ("fish", "bird"), ("jump", "boat"), ("hair", "comb"), ("swim", "home")]
+
+    # Challenge Mode.
+    challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
+
     #Reading words from words_dictionary.json
     with open("Dicticonay.json", "r") as words_dictonary:
         wordsData = json.load(words_dictonary)
 
     #Creating a dictionary for the game.
     WordLadderDictionary = dict()
+
+    forbiddenWords = ["cleat", "", "sheep", "", "whine", "", "bears", "suits"]
+    restrictedLetters = ["", "p", "", "p", "", "s", "", ""]
+    beginnerCount = 0
+    advancedCount = 0
+    challengeCount = 7
 
     #Filtering out words with length greater than equal to 3 and less than 6.
     for word in wordsData: 
@@ -335,16 +417,34 @@ def main():
     while 1:
         #difficulty, selectionMode = chooseGameMode()
         difficulty = 3
-        selectionMode = 1
+        selectionMode = 2
+
         # Creating the graph.
-        wordLadderGraph = createGraph(WordLadderDictionary, difficulty)
+        wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
     
         if selectionMode == 3:
             exit(0)
         elif selectionMode == 2:
             #TO BE DETERMINED :(
-            startWord = "fool"
-            goalWord = "sage"
+            # startWord = "fool"
+            # goalWord = "sage"
+
+            # Challenge mode.
+            if difficulty == 3:
+                # Recreate the graph without forbidden words.
+                wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
+
+                graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
+
+                print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                print("-> UCS: ", uniformCostSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                print("-> A*: ", AStarSearch(graphHeuristics, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                print("\n")
+
+                gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount])
+
+            #challengeCount += 1
+
         elif selectionMode == 1: 
             startWord = input("Enter start word: ")
             while startWord not in WordLadderDictionary:
@@ -366,13 +466,6 @@ def main():
                 while goalWord not in WordLadderDictionary:
                     print("Error: Goal word does not exist in the dictionary.\n")
                     goalWord = input("Enter goal word: ")
-
-        graphHeuristics = AssigningHeuristicCost(wordLadderGraph, goalWord)
-
-        print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
-        print("-> UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
-        print("-> A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
-        print("\n")
 
         # Game play.
         # gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics)
