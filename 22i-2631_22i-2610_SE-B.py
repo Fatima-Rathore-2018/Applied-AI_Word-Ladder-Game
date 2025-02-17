@@ -334,7 +334,7 @@ def main():
 
     while 1:
         #difficulty, selectionMode = chooseGameMode()
-        difficulty = 2
+        difficulty = 3
         selectionMode = 1
         # Creating the graph.
         wordLadderGraph = createGraph(WordLadderDictionary, difficulty)
@@ -369,9 +369,9 @@ def main():
 
         graphHeuristics = AssigningHeuristicCost(wordLadderGraph, goalWord)
 
-        print("\n----- BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
-        print("----- UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
-        print("----- A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
+        print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
+        print("-> UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
+        print("-> A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
         print("\n")
 
         # Game play.
