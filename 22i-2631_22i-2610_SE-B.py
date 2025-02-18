@@ -5,7 +5,7 @@ import string
 
 #Creation of Class Node
 class WordNode:
-    def _init_(self, state, parent, actions, heuristic, totalCost):
+    def __init__(self, state, parent, actions, heuristic, totalCost):
         self.state = state
         self.parent = parent
         self.actions = actions
@@ -212,6 +212,7 @@ def giveHint(path, currentWord):
         return path[currentWordIndex + 1]
     
     print("No hints available anymore.")
+    return None
 
 # Validate if a word exists.
 def validateExistenceOfWordInActions(currentWord, playerChoice, wordLadderGraph):
@@ -229,7 +230,8 @@ def validateExistenceOfWordInDictionary(currentWord, playerChoice, wordLadderDic
         
     return False
 
-def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score):
+def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path):
+    ladderContinues = True
     while True:
         requestForHint = input("\nDo you want a hint? (yes/no): ").strip().lower()
         if requestForHint in ["yes", "no"]:
@@ -254,8 +256,16 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
         nextWord = giveHint(exploredPath, currentWord)
         if nextWord:
             print("Hint for next word:", nextWord)
+        else:
+            ladderContinues = False # No hints means there is no word in the graph that can precede the current one so broken ladder.
+            # path.pop()
+            # print(".........................NEW PATH: ", path)
     
-    return score
+    return score, ladderContinues
+
+# Function to check for duplicates in the path.
+def isDuplicate(word, path):
+    return word in path
 
 # The gameplay function.
 def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary):
@@ -267,7 +277,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
     numberOfTurns = len(AStarSearch(graphHeuristics, startWord, goalWord)) + 5
     exploredPath = []
     optimalNumberOfMoves = len(AStarSearch(graphHeuristics, startWord, goalWord))
-
+    ladderContinues = True
 
     print("\n----- BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
     print("----- UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
@@ -281,15 +291,23 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
         print("Current word:", currentWord, " Target word: ", goalWord)
         print("Explored Path: ", path)
 
-        score = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score)
+        score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
         playerChoice = input("Enter next word: ")
+        while isDuplicate(playerChoice, path):
+            print("The word ", playerChoice, " has already been entered.")
+            playerChoice = input("Enter a non-duplicate word: ")
 
         # Check if the word entered is a banned word.
         while playerChoice == forbiddenWord:
             print(playerChoice, " is a banned word. Please choose another one.")
-            score = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score)
+            score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+            if not ladderContinues:
+                    break 
             playerChoice = input("Now, enter word again: ")
+            while isDuplicate(playerChoice, path):
+                print("The word ", playerChoice, " has already been entered.")
+                playerChoice = input("Enter a non-duplicate word: ")
 
         # If word is a valid word, then check if it has a restricted letter.
         if validateExistenceOfWordInDictionary(currentWord, playerChoice, wordLadderDictionary):
@@ -301,13 +319,21 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
                     if letter == restrictedLetter:
                         print("The word ", playerChoice, " has a restricted letter ", letter)
 
-                        score = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score)
+                        score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
                         playerChoice = input("Now, enter word again: ")
+                        while isDuplicate(playerChoice, path):
+                            print("The word ", playerChoice, " has already been entered.")
+                            playerChoice = input("Enter a non-duplicate word: ")
+
                         while playerChoice == forbiddenWord:
                             print(playerChoice, " is a banned word. Please choose another one.")
-                            score = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score)
+                            score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
                             playerChoice = input("Now, enter word again: ")
+                            while isDuplicate(playerChoice, path):
+                                print("The word ", playerChoice, " has already been entered.")
+                                playerChoice = input("Enter a non-duplicate word: ")
+
                         isValid = False
 
                 if isValid:
@@ -387,6 +413,8 @@ def main():
 
     # Challenge Mode.
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
+
+    # Words for multiplayer mode.
 
     #Reading words from words_dictionary.json
     with open("Dicticonay.json", "r") as words_dictonary:
@@ -552,5 +580,5 @@ def main():
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     main()
