@@ -407,9 +407,7 @@ def main():
             WordLadderDictionary[word] = wordsData[word]
 
     while 1:
-        #difficulty, selectionMode = chooseGameMode()
-        difficulty = 1
-        selectionMode = 2
+        difficulty, selectionMode = chooseGameMode()
 
         # Creating the graph.
         wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
@@ -487,15 +485,23 @@ def main():
 
 
         elif selectionMode == 1: 
+            lengthOfWord = 0
+
             startWord = input("Enter start word: ")
             while startWord not in WordLadderDictionary:
                 print("Error: Start word does not exist in the dictionary.\n")
                 startWord = input("Enter start word: ")
+                while len(startWord) != 3 and len(startWord) != 4 and len(startWord) != 5:
+                    print("You can only enter 3, 4 or 5 letter words.")
+                    startWord = input("Enter start word again: ")
 
             goalWord = input("Enter goal word: ")
             while goalWord not in WordLadderDictionary:
                 print("Error: Goal word does not exist in the dictionary.\n")
                 goalWord = input("Enter goal word: ")
+                while len(goalWord) != 3 and len(goalWord) != 4 and len(goalWord) != 5:
+                    print("You can only enter 3, 4 or 5 letter words.")
+                    goalWord = input("Enter start word again: ")
 
             while len(startWord) != len(goalWord):
                 print("Start Word and Goal Word should have the same length!")
@@ -504,11 +510,27 @@ def main():
                 while startWord not in WordLadderDictionary:
                     print("Error: Start word does not exist in the dictionary.\n")
                     startWord = input("Enter start word: ")
+                    while len(startWord) != 3 and len(startWord) != 4 and len(startWord) != 5:
+                        print("You can only enter 3, 4 or 5 letter words.")
+                        startWord = input("Enter start word again: ")
 
                 goalWord = input("Enter goal word: ")
                 while goalWord not in WordLadderDictionary:
                     print("Error: Goal word does not exist in the dictionary.\n")
                     goalWord = input("Enter goal word: ")
+                    while len(goalWord) != 3 and len(goalWord) != 4 and len(goalWord) != 5:
+                        print("You can only enter 3, 4 or 5 letter words.")
+                        goalWord = input("Enter start word again: ")
+
+            lengthOfWord = len(startWord)
+            if lengthOfWord == 3:
+                difficulty = 1
+            elif lengthOfWord == 4:
+                difficulty = 2
+            elif lengthOfWord == 5:
+                difficulty = 3
+
+            wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
             
             path = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
             
@@ -528,7 +550,7 @@ def main():
                 path = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
             
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
-            gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount])
+            gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
 
 
 if __name__ == "__main__":
