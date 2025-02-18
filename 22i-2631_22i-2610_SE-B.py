@@ -5,7 +5,7 @@ import string
 
 #Creation of Class Node
 class WordNode:
-    def __init__(self, state, parent, actions, heuristic, totalCost):
+    def _init_(self, state, parent, actions, heuristic, totalCost):
         self.state = state
         self.parent = parent
         self.actions = actions
@@ -318,18 +318,8 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             currentWord = playerChoice
             path.append(currentWord)
         else:
-            while playerChoice == forbiddenWord:
-                print(playerChoice, " is a banned word. Please choose another one.")
-                score = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score)
-                playerChoice = input("Now, enter word again: ")
             score -= 7 # Score will decrease by 7 if word does not exist in the ladder.
             print("Invalid word choice. Try again.")
-
-        numberOfTurns -= 1
-        if numberOfTurns == 0:
-            print("Number of turns have finished.")
-            break
-
 
         numberOfTurns -= 1
         if numberOfTurns == 0:
@@ -393,7 +383,7 @@ def main():
     beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
     print(len(beginnersModeList))
     # Advanced Mode.
-    advancedModeList = [("gold", "boat"),("cold", "fall"), ("head", "tail"), ("slow", "down"), ("calf", "lamb"), ("many", "rule"), ("lost", "here"), ("hunt", "gone"), ("rich", "poor"), ("hook", "fish"), ("coal", "mine"), ("fish", "bird"), ("jump", "boat"), ("hair", "comb"), ("swim", "home")]
+    advancedModeList = [("cold", "fall"), ("head", "tail"), ("slow", "down"), ("calf", "lamb"), ("many", "rule"), ("lost", "here"), ("hunt", "gone"), ("rich", "poor"), ("hook", "fish"), ("coal", "mine"), ("fish", "bird"), ("jump", "boat"), ("hair", "comb"), ("swim", "home")]
 
     # Challenge Mode.
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
@@ -562,6 +552,5 @@ def main():
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
 
-
-if __name__ == "__main__":
+if __name__ == "_main_":
     main()
