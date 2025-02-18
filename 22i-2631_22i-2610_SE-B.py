@@ -431,7 +431,7 @@ def main():
                 print("-> A*: ", AStarSearch(graphHeuristics, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
                 print("\n")
             
-                gameplayFunction(wordLadderGraphF, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, forbiddenWords[0], restrictedLetters[beginnerCount])
+                gameplayFunction(wordLadderGraphF, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary)
                 beginnerCount += 1
 
             #Advance mode.
@@ -445,8 +445,8 @@ def main():
                 print("-> A*: ", AStarSearch(graphHeuristics, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
                 print("\n")
             
-                gameplayFunction(wordLadderGraphF, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, forbiddenWords[0], restrictedLetters[advancedCount])
-                beginnerCount += 1
+                gameplayFunction(wordLadderGraphF, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary)
+                advancedCount += 1
 
             # Challenge mode.
             else :
@@ -460,7 +460,7 @@ def main():
                 print("-> A*: ", AStarSearch(graphHeuristics, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
                 print("\n")
             
-                gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount])
+                gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount] ,WordLadderDictionary)
                 challengeCount += 1
 
         elif selectionMode == 1: 
@@ -505,7 +505,7 @@ def main():
                 path = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
             
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
-            gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount])
+            gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
 
 if __name__ == "__main__":
     main()
