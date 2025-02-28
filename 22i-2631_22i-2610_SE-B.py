@@ -1,6 +1,7 @@
 import json
 import string
 import os
+import time
 
 # Note: node-to-node cost will always be unit cost because there is always one-letter difference between a node and its children.
 
@@ -270,25 +271,27 @@ def isDuplicate(word, path):
 
 #Player Class.
 class Player: 
-      def __init__(self, name, currenttWord, listOfMoves, NumberOfMoves, hasWon):
+      def __init__(self, name, currentWord, listOfMoves, NumberOfMoves, hasWon):
         self.name = name
-        self.currentWord = currenttWord
-        self.listOfMoves = [currenttWord]
+        self.currentWord = currentWord
+        self.listOfMoves = [currentWord]
         self.NumberOfMoves = NumberOfMoves
         self.hasWon = hasWon
 
 
 #The gameplay function for Multiplayer Mode.
 def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary, player):
+    time.sleep(1)
     os.system("cls")
     score = 0
     currentWord = player.currentWord
     path = player.listOfMoves
     print("Turn of Player ", player.name)
+    print("Current Word: ", currentWord)
     print("Progess: ", player.listOfMoves)
     print("Number of Moves: ", player.NumberOfMoves)
 
-    score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics,startWord, goalWord, currentWord, score, path)
+    score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
     if score == -3:
         player.NumberOfMoves += 2
@@ -348,16 +351,12 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
         player.currentWord = currentWord
         player.listOfMoves = path
         player.NumberOfMoves += 1
-
-        print("Turn of Player ", player.name)
-        print("Progess: ", player.listOfMoves)
-        print("Number of Moves: ", player.NumberOfMoves)
-
     else:
-        print("Invalid word choice.")
+        print("Invalid word choice.\n")
 
-    if currentWord == goalWord:
+    if player.currentWord == goalWord:
         player.hasWon = True
+
 
     return player
 
@@ -463,6 +462,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
 
 # Function to allow players to choose level of difficulty and word selection.
 def chooseGameMode():
+    print("\n------------------------------------- Selection Mode -------------------------------------------")
     print("Choose word selection mode:")
     print("1. Enter start and end words")
     print("2. Automatic selection of start and end words")
@@ -470,7 +470,7 @@ def chooseGameMode():
     print("4. Exit")
     wordSelectionMode = int(input("Enter your choice (1/2/3/4): "))
 
-    while wordSelectionMode < 1 or wordSelectionMode > 3:
+    while wordSelectionMode < 1 or wordSelectionMode > 4:
         print("Invalid Input.")
         print("Choose word selection mode:")
         print("1. Enter start and end words")
@@ -479,24 +479,27 @@ def chooseGameMode():
         print("4. Exit")
         wordSelectionMode = int(input("Enter your choice (1/2/3/4): "))
 
-    difficulty = 1
+    return wordSelectionMode
+    
+# Choose difficulty level.
+def chooseDifficultyLevel():
+    print("\n------------------------------------- Difficulty Level -------------------------------------------")
+    print("Choose difficulty level:")
+    print("1. Beginner Mode (Simple word ladders)")
+    print("2. Advanced Mode (Longer and complex ladders)")
+    print("3. Challenge Mode (Restricted Letters, banned words etc.)")
+    print("4. Go back to main menu.")
+    difficulty = int(input("Enter your choice (1/2/3/4): "))
 
-    if wordSelectionMode == 2 and wordSelectionMode == 3:
+    while difficulty < 1 or difficulty > 4:
         print("Choose difficulty level:")
         print("1. Beginner Mode (Simple word ladders)")
         print("2. Advanced Mode (Longer and complex ladders)")
         print("3. Challenge Mode (Restricted Letters, banned words etc.)")
+        print("4. Go back to main menu.")
         difficulty = int(input("Enter your choice (1/2/3): "))
-        
-        while wordSelectionMode < 1 or wordSelectionMode > 3:
-            print("Choose difficulty level:")
-            print("1. Beginner Mode (Simple word ladders)")
-            print("2. Advanced Mode (Longer and complex ladders)")
-            print("3. Challenge Mode (Restricted Letters, banned words etc.)")
-            difficulty = int(input("Enter your choice (1/2/3): "))
 
-    return difficulty, wordSelectionMode
-    
+    return difficulty
 
 # Main Function.
 def main():
@@ -540,83 +543,92 @@ def main():
             WordLadderDictionary[word] = wordsData[word]
 
     while 1:
-        difficulty, selectionMode = chooseGameMode()
+        selectionMode = chooseGameMode()
 
-        # Creating the graph.
-        wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
+        # # Creating the graph.
+        # wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
     
         if selectionMode == 4:
             exit(0)
         elif selectionMode == 2:
-            #Beginner mode.
-            if difficulty == 1:
-
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerCount][1])
-
-                print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                print("-> UCS: ", uniformCostSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                print("-> A*: ", AStarSearch(graphHeuristics, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                print("\n")
-            
-                canProceed = gameplayFunction(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary)
+            while True:
+                difficulty = chooseDifficultyLevel()
                 
-                if canProceed == True:
-                    print("You won! You can proceed to the next word pair.")
-                    beginnerCount += 1
+                # Creating the graph.
+                wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
+
+                #Beginner mode - Single Player.
+                if difficulty == 1:
+
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerCount][1])
+
+                    print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
+                    print("-> UCS: ", uniformCostSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
+                    print("-> A*: ", AStarSearch(graphHeuristics, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
+                    print("\n")
+                
+                    canProceed = gameplayFunction(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary)
+                    
+                    if canProceed == True:
+                        print("You won! You can proceed to the next word pair.")
+                        beginnerCount += 1
+                    else:
+                        print("You lost! To move to the next word pair, win this level.")
+
+                    if(beginnerCount == len(beginnersModeList)):
+                        print("You've Completed Beginner Level!")
+                        beginnerCount = 0
+
+                #Advance mode - Single Player.
+                elif difficulty == 2:
+                
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedCount][1])
+
+                    print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
+                    print("-> UCS: ", uniformCostSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
+                    print("-> A*: ", AStarSearch(graphHeuristics, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
+                    print("\n")
+                
+                    canProceed = gameplayFunction(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary)
+
+                    if canProceed == True:
+                        print("You won! You can proceed to the next word pair.")
+                        advancedCount += 1
+                    else:
+                        print("You lost! To move to the next word pair, win this level.")
+
+                    if(advancedCount == len(advancedModeList)):
+                        print("You've Completed Beginner Level!")
+                        advancedCount = 0 
+
+                # Challenge mode - Single Player.
+                elif difficulty == 3:
+                    # Recreate the graph without forbidden words.
+                    wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
+
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
+
+                    print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                    print("-> UCS: ", uniformCostSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                    print("-> A*: ", AStarSearch(graphHeuristics, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
+                    print("\n")
+                
+                    canProceed = gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary)
+
+                    if canProceed == True:
+                        print("You won! You can proceed to the next word pair.")
+                        challengeCount += 1
+                    else:
+                        print("You lost! To move to the next word pair, win this level.")
+
+                    if(challengeCount == len(challengeModeList)):
+                        print("You've Completed Beginner Level!")
+                        challengeCount = 0 
+
                 else:
-                    print("You lost! To move to the next word pair, win this level.")
+                    break
 
-                if(beginnerCount == len(beginnersModeList)):
-                    print("You've Completed Beginner Level!")
-                    beginnerCount = 0
-
-            #Advance mode.
-            elif difficulty == 2:
-             
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedCount][1])
-
-                print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                print("-> UCS: ", uniformCostSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                print("-> A*: ", AStarSearch(graphHeuristics, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                print("\n")
-            
-                canProceed = gameplayFunction(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary)
-
-                if canProceed == True:
-                    print("You won! You can proceed to the next word pair.")
-                    advancedCount += 1
-                else:
-                    print("You lost! To move to the next word pair, win this level.")
-
-                if(advancedCount == len(advancedModeList)):
-                    print("You've Completed Beginner Level!")
-                    advancedCount = 0 
-
-            # Challenge mode.
-            else :
-                # Recreate the graph without forbidden words.
-                wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
-
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
-
-                print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                print("-> UCS: ", uniformCostSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                print("-> A*: ", AStarSearch(graphHeuristics, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                print("\n")
-            
-                canProceed = gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary)
-
-                if canProceed == True:
-                    print("You won! You can proceed to the next word pair.")
-                    challengeCount += 1
-                else:
-                    print("You lost! To move to the next word pair, win this level.")
-
-                if(challengeCount == len(challengeModeList)):
-                    print("You've Completed Beginner Level!")
-                    challengeCount = 0 
-
-
+        # Words chosen by player.
         elif selectionMode == 1: 
             lengthOfWord = 0
 
@@ -684,101 +696,131 @@ def main():
             
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
+
+        # Multiplayer Mode.
         elif selectionMode == 3:
+            beginnerMultiplayerCount = 0
+            advancedMultiplayerCount = 0
+            challengeMultiplayerCount = 0
+
             print("Multiplayer Mode: ")
-            player01Name = input("Enter name of Player 01")
-            player02Name = input("Enter name of Player 02")
            
-            #Beginner mode.
-            if difficulty == 1:
+            while True:
 
-                player01 = Player(player01Name, beginnersModeList[beginnerCount][0], 0, 0, False)
-                player02 = Player(player02Name, beginnersModeList[beginnerCount][0], 0, 0, False)
+                difficulty = chooseDifficultyLevel()
+                # Creating the graph.
+                wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
+
+                # Beginner mode - Multiplayer.
+                if difficulty == 1:
+                    
+                    player01Name = input("Enter name of Player 01: ")
+                    player02Name = input("Enter name of Player 02: ")
+
+                    player01 = Player(player01Name, beginnersModeList[beginnerMultiplayerCount][0], 0, 0, False)
+                    player02 = Player(player02Name, beginnersModeList[beginnerMultiplayerCount][0], 0, 0, False)
+                    
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerMultiplayerCount][1])
+
+                    while True:
+                        if player01.hasWon == False:
+                            player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerMultiplayerCount][0], beginnersModeList[beginnerMultiplayerCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
+                        
+                        if player02.hasWon == False:
+                            player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerMultiplayerCount][0], beginnersModeList[beginnerMultiplayerCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
+                        
+                        if player01.hasWon == True and player02.hasWon == True:
+                            print("========================= WINNER ================================")
+                            if player01.NumberOfMoves < player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player01.name)
+                                print("Progess: ", player01.listOfMoves)
+                                print("Number of Moves: ", player01.NumberOfMoves)
+                                break
+                            elif player01.NumberOfMoves > player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player02.name)
+                                print("Progess: ", player02.listOfMoves)
+                                print("Number of Moves: ", player02.NumberOfMoves)
+                                break
+                            else:
+                                print("It's a draw")
+                                break
+
+                    beginnerMultiplayerCount += 1
+
+                # Advanced Mode - Multiplayer.
+                elif difficulty == 2:
+                    
+                    player01Name = input("Enter name of Player 01: ")
+                    player02Name = input("Enter name of Player 02: ")
+
+                    player01 = Player(player01Name, advancedModeList[advancedMultiplayerCount][0], 0, 0, False)
+                    player02 = Player(player02Name, advancedModeList[advancedMultiplayerCount][0], 0, 0, False)
+                    
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedMultiplayerCount][1])
+
+                    while True:
+                        if player01.hasWon == False:
+                            player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedMultiplayerCount][0], advancedModeList[advancedMultiplayerCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
+                        
+                        if player02.hasWon == False:
+                            player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedMultiplayerCount][0], advancedModeList[advancedMultiplayerCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
+                    
+                        if player01.hasWon == True and player02.hasWon == True:
+                            if player01.NumberOfMoves < player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player01.name)
+                                print("Progess: ", player01.listOfMoves)
+                                print("Number of Moves: ", player01.NumberOfMoves)
+                                break
+                            elif player01.NumberOfMoves > player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player02.name)
+                                print("Progess: ", player02.listOfMoves)
+                                print("Number of Moves: ", player02.NumberOfMoves)
+                                break
+                            else:
+                                print("It's a draw")
+                                break
+
+                    advancedMultiplayerCount += 1
+
+                # Challenge Mode - Multiplayer.
+                elif difficulty == 3:
+
+                    player01Name = input("Enter name of Player 01: ")
+                    player02Name = input("Enter name of Player 02: ")
+
+                    player01 = Player(player01Name,  challengeModeList[challengeMultiplayerCount][0], 0, 0, False)
+                    player02 = Player(player02Name,  challengeModeList[challengeMultiplayerCount][0], 0, 0, False)
+                    
+                    wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeMultiplayerCount], restrictedLetters[challengeMultiplayerCount])
+
+                    graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeMultiplayerCount][1])
+
+                    while True:
+                        if player01.hasWon == False:
+                            player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeMultiplayerCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeMultiplayerCount], restrictedLetters[challengeMultiplayerCount], WordLadderDictionary, player01)
+                        
+                        if player02.hasWon == False:
+                            player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeMultiplayerCount][0], challengeModeList[challengeMultiplayerCount][1], graphHeuristics, forbiddenWords[challengeMultiplayerCount], restrictedLetters[challengeMultiplayerCount], WordLadderDictionary, player02)
+                        
+                        if player01.hasWon == True and player02.hasWon == True:
+                            if player01.NumberOfMoves < player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player01.name)
+                                print("Progess: ", player01.listOfMoves)
+                                print("Number of Moves: ", player01.NumberOfMoves)
+                                break
+                            elif player01.NumberOfMoves > player02.NumberOfMoves:
+                                print("Winner of the Game is Player ", player02.name)
+                                print("Progess: ", player02.listOfMoves)
+                                print("Number of Moves: ", player02.NumberOfMoves)
+                                break
+                            else:
+                                print("It's a draw")
+                                break
                 
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerCount][1])
-
-                while True:
-                    if player01.hasWon == False:
-                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
-                    
-                    if player02.hasWon == False:
-                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
-                    
-                    if player01.hasWon == True and player02.hasWon == True:
-                        if player01.NumberOfMoves < player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player01.name)
-                            print("Progess: ", player01.listOfMoves)
-                            print("Number of Moves: ", player01.NumberOfMoves)
-                            break
-                        elif player01.NumberOfMoves > player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player02.name)
-                            print("Progess: ", player02.listOfMoves)
-                            print("Number of Moves: ", player02.NumberOfMoves)
-                            break
-                        else:
-                            print("It's a draw")
-                            break
-            elif difficulty == 2:
+                    challengeMultiplayerCount += 1
                 
-                player01 = Player(player01Name, advancedModeList[advancedCount][0], 0, 0, False)
-                player02 = Player(player02Name, advancedModeList[advancedCount][0], 0, 0, False)
-                
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedCount][1])
-
-                while True:
-                    if player01.hasWon == False:
-                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
-                    
-                    if player02.hasWon == False:
-                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
-                    
-                    if player01.hasWon == True and player02.hasWon == True:
-                        if player01.NumberOfMoves < player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player01.name)
-                            print("Progess: ", player01.listOfMoves)
-                            print("Number of Moves: ", player01.NumberOfMoves)
-                            break
-                        elif player01.NumberOfMoves > player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player02.name)
-                            print("Progess: ", player02.listOfMoves)
-                            print("Number of Moves: ", player02.NumberOfMoves)
-                            break
-                        else:
-                            print("It's a draw")
-                            break
-            elif difficulty == 3:
-
-                player01 = Player(player01Name,  challengeModeList[challengeCount][0], 0, 0, False)
-                player02 = Player(player02Name,  challengeModeList[challengeCount][0], 0, 0, False)
-                
-                wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
-
-                graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
-
-                while True:
-                    if player01.hasWon == False:
-                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary, player01)
-                    
-                    if player02.hasWon == False:
-                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary, player02)
-                    
-                    if player01.hasWon == True and player02.hasWon == True:
-                        if player01.NumberOfMoves < player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player01.name)
-                            print("Progess: ", player01.listOfMoves)
-                            print("Number of Moves: ", player01.NumberOfMoves)
-                            break
-                        elif player01.NumberOfMoves > player02.NumberOfMoves:
-                            print("Winner of the Game is Player ", player02.name)
-                            print("Progess: ", player02.listOfMoves)
-                            print("Number of Moves: ", player02.NumberOfMoves)
-                            break
-                        else:
-                            print("It's a draw")
-                            break
-
-
-                    
+                elif difficulty == 4:
+                    break
 
 if __name__ == "__main__":
     main()
