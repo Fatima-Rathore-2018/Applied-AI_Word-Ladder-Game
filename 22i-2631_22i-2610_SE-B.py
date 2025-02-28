@@ -469,12 +469,12 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
         console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
 
         console.print("\n[bold yellow]🎉 Congratulations! You have completed the word ladder![/bold yellow]")
+        console.print("[bold yellow]🏆 Final Score: [/bold yellow]\n", score)
         hasWon = True
     else:
         console.print("[bold red]You lost![/bold red]") 
+        console.print("[bold yellow]Final Score: [/bold yellow]", score)
         hasWon = False
-
-    console.print("[bold yellow]Final Score: [/bold yellow]", score)
 
     return hasWon
 
