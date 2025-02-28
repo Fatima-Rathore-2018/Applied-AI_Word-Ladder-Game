@@ -1,5 +1,6 @@
 import json
 import string
+import os
 
 # Note: node-to-node cost will always be unit cost because there is always one-letter difference between a node and its children.
 
@@ -267,10 +268,103 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
 def isDuplicate(word, path):
     return word in path
 
+#Player Class.
+class Player: 
+      def __init__(self, name, currenttWord, listOfMoves, NumberOfMoves, hasWon):
+        self.name = name
+        self.currentWord = currenttWord
+        self.listOfMoves = [currenttWord]
+        self.NumberOfMoves = NumberOfMoves
+        self.hasWon = hasWon
+
+
+#The gameplay function for Multiplayer Mode.
+def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary, player):
+    os.system("cls")
+    score = 0
+    currentWord = player.currentWord
+    path = player.listOfMoves
+    print("Turn of Player ", player.name)
+    print("Progess: ", player.listOfMoves)
+    print("Number of Moves: ", player.NumberOfMoves)
+
+    score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics,startWord, goalWord, currentWord, score, path)
+
+    if score == -3:
+        player.NumberOfMoves += 2
+
+    playerChoice = input("Enter next word: ")
+    while isDuplicate(playerChoice, path):
+        print("The word ", playerChoice, " has already been entered.")
+        playerChoice = input("Enter a non-duplicate word: ")
+
+    # Check if the word entered is a banned word.
+    while playerChoice == forbiddenWord:
+        print(playerChoice, " is a banned word. Please choose another one.")
+        score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+        if not ladderContinues:
+                break 
+        playerChoice = input("Now, enter word again: ")
+        while isDuplicate(playerChoice, path):
+            print("The word ", playerChoice, " has already been entered.")
+            playerChoice = input("Enter a non-duplicate word: ")    
+
+    
+    # If word is a valid word, then check if it has a restricted letter.
+    if validateExistenceOfWordInDictionary(currentWord, playerChoice, wordLadderDictionary):
+        #currentWord = playerChoice
+        # Check if the word entered has a restrcited letter.
+        while True:
+            isValid = True
+            for letter in playerChoice:
+                if letter == restrictedLetter:
+                    print("The word ", playerChoice, " has a restricted letter ", letter)
+
+                    score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+
+                    playerChoice = input("Now, enter word again: ")
+                    while isDuplicate(playerChoice, path):
+                        print("The word ", playerChoice, " has already been entered.")
+                        playerChoice = input("Enter a non-duplicate word: ")
+
+                    while playerChoice == forbiddenWord:
+                        print(playerChoice, " is a banned word. Please choose another one.")
+                        score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+                        playerChoice = input("Now, enter word again: ")
+                        while isDuplicate(playerChoice, path):
+                            print("The word ", playerChoice, " has already been entered.")
+                            playerChoice = input("Enter a non-duplicate word: ")
+
+                    isValid = False
+
+            if isValid:
+                break
+    
+    # Validate if the children exist.
+    if validateExistenceOfWordInActions(currentWord, playerChoice, wordLadderGraph):
+        currentWord = playerChoice
+        path.append(currentWord)
+
+        player.currentWord = currentWord
+        player.listOfMoves = path
+        player.NumberOfMoves += 1
+
+        print("Turn of Player ", player.name)
+        print("Progess: ", player.listOfMoves)
+        print("Number of Moves: ", player.NumberOfMoves)
+
+    else:
+        print("Invalid word choice.")
+
+    if currentWord == goalWord:
+        player.hasWon = True
+
+    return player
+
+
 # The gameplay function.
 def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary):
     print(forbiddenWord)
-    print("Inside gameplay function.")
     currentWord = startWord
     path = [currentWord]
     hasWon = False
@@ -387,7 +481,7 @@ def chooseGameMode():
 
     difficulty = 1
 
-    if wordSelectionMode == 2:
+    if wordSelectionMode == 2 and wordSelectionMode == 3:
         print("Choose difficulty level:")
         print("1. Beginner Mode (Simple word ladders)")
         print("2. Advanced Mode (Longer and complex ladders)")
@@ -416,14 +510,15 @@ def main():
     # Challenge Mode.
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
 
-    # Words for multiplayer mode.
-    multiplayerModeList = [
-        [("tie", "dye"), ("hot", "dog")],
-        [("good", "toad"), ("hope", "bold")],
-        [("ship", "stow"), ("part", "farm")],
-        [("warm", "cold"), ("cold", "fall")],
-        [("head", "tail"), ("slow", "down")],
-    ]
+    #NOT REQUIRED FOR NOW.
+    # # Words for multiplayer mode.
+    # multiplayerModeList = [
+    #     [("tie", "dye"), ("hot", "dog")],
+    #     [("good", "toad"), ("hope", "bold")],
+    #     [("ship", "stow"), ("part", "farm")],
+    #     [("warm", "cold"), ("cold", "fall")],
+    #     [("head", "tail"), ("slow", "down")],
+    # ]
 
     #Reading words from words_dictionary.json
     with open("Dicticonay.json", "r") as words_dictonary:
@@ -450,7 +545,7 @@ def main():
         # Creating the graph.
         wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
     
-        if selectionMode == 3:
+        if selectionMode == 4:
             exit(0)
         elif selectionMode == 2:
             #Beginner mode.
@@ -591,7 +686,99 @@ def main():
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
         elif selectionMode == 3:
             print("Multiplayer Mode: ")
-                 
+            player01Name = input("Enter name of Player 01")
+            player02Name = input("Enter name of Player 02")
+           
+            #Beginner mode.
+            if difficulty == 1:
+
+                player01 = Player(player01Name, beginnersModeList[beginnerCount][0], 0, 0, False)
+                player02 = Player(player02Name, beginnersModeList[beginnerCount][0], 0, 0, False)
+                
+                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerCount][1])
+
+                while True:
+                    if player01.hasWon == False:
+                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
+                    
+                    if player02.hasWon == False:
+                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
+                    
+                    if player01.hasWon == True and player02.hasWon == True:
+                        if player01.NumberOfMoves < player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player01.name)
+                            print("Progess: ", player01.listOfMoves)
+                            print("Number of Moves: ", player01.NumberOfMoves)
+                            break
+                        elif player01.NumberOfMoves > player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player02.name)
+                            print("Progess: ", player02.listOfMoves)
+                            print("Number of Moves: ", player02.NumberOfMoves)
+                            break
+                        else:
+                            print("It's a draw")
+                            break
+            elif difficulty == 2:
+                
+                player01 = Player(player01Name, advancedModeList[advancedCount][0], 0, 0, False)
+                player02 = Player(player02Name, advancedModeList[advancedCount][0], 0, 0, False)
+                
+                graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedCount][1])
+
+                while True:
+                    if player01.hasWon == False:
+                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary, player01)
+                    
+                    if player02.hasWon == False:
+                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
+                    
+                    if player01.hasWon == True and player02.hasWon == True:
+                        if player01.NumberOfMoves < player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player01.name)
+                            print("Progess: ", player01.listOfMoves)
+                            print("Number of Moves: ", player01.NumberOfMoves)
+                            break
+                        elif player01.NumberOfMoves > player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player02.name)
+                            print("Progess: ", player02.listOfMoves)
+                            print("Number of Moves: ", player02.NumberOfMoves)
+                            break
+                        else:
+                            print("It's a draw")
+                            break
+            elif difficulty == 3:
+
+                player01 = Player(player01Name,  challengeModeList[challengeCount][0], 0, 0, False)
+                player02 = Player(player02Name,  challengeModeList[challengeCount][0], 0, 0, False)
+                
+                wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
+
+                graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
+
+                while True:
+                    if player01.hasWon == False:
+                        player01 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary, player01)
+                    
+                    if player02.hasWon == False:
+                        player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary, player02)
+                    
+                    if player01.hasWon == True and player02.hasWon == True:
+                        if player01.NumberOfMoves < player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player01.name)
+                            print("Progess: ", player01.listOfMoves)
+                            print("Number of Moves: ", player01.NumberOfMoves)
+                            break
+                        elif player01.NumberOfMoves > player02.NumberOfMoves:
+                            print("Winner of the Game is Player ", player02.name)
+                            print("Progess: ", player02.listOfMoves)
+                            print("Number of Moves: ", player02.NumberOfMoves)
+                            break
+                        else:
+                            print("It's a draw")
+                            break
+
+
+                    
 
 if __name__ == "__main__":
     main()
