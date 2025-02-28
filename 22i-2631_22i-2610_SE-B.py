@@ -462,13 +462,19 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             score -= 5
 
     if currentWord == goalWord:
-        console.print("[bold yellow]🎉 Congratulations! You have completed the word ladder![/bold yellow]")
+        time.sleep(1)
+        os.system("cls")
+        console.print(Panel(f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]         [bold green] 📊 Current Score: {score}[/bold green]\n\n[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]         [bold cyan] 🔤 Current Word: {currentWord}[/bold cyan]", style="white", width=60))
+
+        console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
+
+        console.print("\n[bold yellow]🎉 Congratulations! You have completed the word ladder![/bold yellow]")
         hasWon = True
     else:
-        print("[bold red]You lost![/bold red]") 
+        console.print("[bold red]You lost![/bold red]") 
         hasWon = False
 
-    print("[bold yellow]Final Score: [/bold yellow]", score)
+    console.print("[bold yellow]Final Score: [/bold yellow]", score)
 
     return hasWon
 
@@ -532,9 +538,11 @@ console = Console()
 # Main Function.
 def main():
 
-    print("════════════════════════".center(150))
-    console.print(" [bold #8B4513]💡 WORD LADDER GAME 🪜[/bold #8B4513]".center(175))
-    print("════════════════════════".center(150))
+    #print("════════════════════════════════════════════════".center(150))
+    print("")
+    console.print(" [bold #8B4513]  W O R D   L A D D E R   G A M E 🪜[/bold #8B4513]".center(175))
+    print("")
+    #print("════════════════════════════════════════════════".center(150))
    
     # Predefined lists:
     # Beginner Mode.
