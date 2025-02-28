@@ -2,6 +2,10 @@ import json
 import string
 import os
 import time
+import sys
+from colorama import init, Fore, Back, Style
+from rich.console import Console
+from rich.panel import Panel
 
 # Note: node-to-node cost will always be unit cost because there is always one-letter difference between a node and its children.
 
@@ -501,11 +505,17 @@ def chooseDifficultyLevel():
 
     return difficulty
 
+console = Console()
+
 # Main Function.
 def main():
 
-    print("Word Ladder Game 🪜")
+    # console.print(Panel("Word Ladder Game 🪜  ", expand=False))
 
+    print("═════════════════════".center(150))
+    console.print(" [bold sandy_brown]Word Ladder Game 🪜[/bold sandy_brown]".center(183))
+    print("═════════════════════".center(150))
+   
     # Predefined lists:
     # Beginner Mode.
     beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
