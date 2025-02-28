@@ -513,16 +513,6 @@ def main():
     # Challenge Mode.
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
 
-    #NOT REQUIRED FOR NOW.
-    # # Words for multiplayer mode.
-    # multiplayerModeList = [
-    #     [("tie", "dye"), ("hot", "dog")],
-    #     [("good", "toad"), ("hope", "bold")],
-    #     [("ship", "stow"), ("part", "farm")],
-    #     [("warm", "cold"), ("cold", "fall")],
-    #     [("head", "tail"), ("slow", "down")],
-    # ]
-
     #Reading words from words_dictionary.json
     with open("Dicticonay.json", "r") as words_dictonary:
         wordsData = json.load(words_dictonary)
