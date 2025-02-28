@@ -372,16 +372,18 @@ def chooseGameMode():
     print("Choose word selection mode:")
     print("1. Enter start and end words")
     print("2. Automatic selection of start and end words")
-    print("3. Exit")
-    wordSelectionMode = int(input("Enter your choice (1/2/3): "))
+    print("3. Multiplayer with Automatic selection of start and end words")
+    print("4. Exit")
+    wordSelectionMode = int(input("Enter your choice (1/2/3/4): "))
 
     while wordSelectionMode < 1 or wordSelectionMode > 3:
         print("Invalid Input.")
         print("Choose word selection mode:")
         print("1. Enter start and end words")
         print("2. Automatic selection of start and end words")
-        print("3. Exit")
-        wordSelectionMode = int(input("Enter your choice (1/2/3): "))
+        print("3. Multiplayer with Automatic selection of start and end words")
+        print("4. Exit")
+        wordSelectionMode = int(input("Enter your choice (1/2/3/4): "))
 
     difficulty = 1
 
@@ -415,6 +417,13 @@ def main():
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
 
     # Words for multiplayer mode.
+    multiplayerModeList = [
+        [("tie", "dye"), ("hot", "dog")],
+        [("good", "toad"), ("hope", "bold")],
+        [("ship", "stow"), ("part", "farm")],
+        [("warm", "cold"), ("cold", "fall")],
+        [("head", "tail"), ("slow", "down")],
+    ]
 
     #Reading words from words_dictionary.json
     with open("Dicticonay.json", "r") as words_dictonary:
@@ -428,6 +437,7 @@ def main():
     beginnerCount = 0
     advancedCount = 0
     challengeCount = 0
+    multiplayerCount = 0
 
     #Filtering out words with length greater than equal to 3 and less than 6.
     for word in wordsData: 
@@ -579,6 +589,9 @@ def main():
             
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
+        elif selectionMode == 3:
+            print("Multiplayer Mode: ")
+                 
 
 if __name__ == "__main__":
     main()
