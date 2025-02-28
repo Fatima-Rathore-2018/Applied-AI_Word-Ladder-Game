@@ -503,6 +503,9 @@ def chooseDifficultyLevel():
 
 # Main Function.
 def main():
+
+    print("Word Ladder Game 🪜")
+
     # Predefined lists:
     # Beginner Mode.
     beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
