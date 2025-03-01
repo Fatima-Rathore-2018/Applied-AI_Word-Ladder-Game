@@ -74,7 +74,7 @@ def SequenceOfSteps(WordLadderGraph, startState, goalState):
         currentNode = WordLadderGraph[currentNode.parent]
     
     finalPath.insert(0, startState)
-
+    # print(finalPath)
     return finalPath
 
 # Function to find the node with minimum path cost.
@@ -116,6 +116,7 @@ def AStarSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
+            # print(explored, currentNode)
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -146,6 +147,7 @@ def AStarSearch(WordLadderGraph, startState, goalState):
                     WordLadderGraph[child[0]].parent=frontier[child[0]][0]
                     WordLadderGraph[child[0]].totalCost=currentCost
 
+
 # Function for Uniform-Cost Search (UCS)
 def uniformCostSearch(WordLadderGraph, startState, goalState):
     frontier = dict()
@@ -159,6 +161,7 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
+            # print(explored, currentNode)
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -175,6 +178,8 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
                 frontier[childNode[0]] = (currentNode, updatedCost)
                 WordLadderGraph[childNode[0]].parent = frontier[childNode[0]][0]
                 WordLadderGraph[childNode[0]].totalCost = frontier[childNode[0]][1]
+
+        # print(explored)
 
 # Function to find the shortest path using Breadth First Search.
 def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
@@ -207,6 +212,7 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
                 #Perform goal test, if passed return.
                 if childNode[0] == goalState:
                     WordLadderGraph[childNode[0]].parent = currentNode
+                    # print(explored, childNode[0])
                     return SequenceOfSteps(WordLadderGraph, startState, goalState)
                 
                 #Else add the childNode to frontier
@@ -631,7 +637,10 @@ def printMultiPlayerMode():
     console.print(" [bold magenta]  M U L T I   P L A Y E R   M O D E 👥[/bold magenta]".center(180))
     print("")
 
-
+# Function to print graph.
+def printGraph(WordLadderGraph):
+        for word, node in WordLadderGraph.items():
+            print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.totalCost}")
 
 # Main Function.
 def main():
@@ -664,6 +673,17 @@ def main():
     for word in wordsData: 
         if 3 <= len(word) < 6:
             WordLadderDictionary[word] = wordsData[word]
+
+    # wordLadderGraph = createGraph(WordLadderDictionary, 1, "", "")
+    # console.print("[bold yellow]3-Letter Words Graph[/bold yellow]")
+    # printGraph(wordLadderGraph)
+    # wordLadderGraph = createGraph(WordLadderDictionary, 2, "", "")
+    # console.print("[bold yellow]4-Letter Words Graph[/bold yellow]")
+    # printGraph(wordLadderGraph)
+    # wordLadderGraph = createGraph(WordLadderDictionary, 3, "", "")
+    # console.print("[bold yellow]5-Letter Words Graph[/bold yellow]")
+    # printGraph(wordLadderGraph)
+    # input()
 
     while 1:
         selectionMode = chooseGameMode()
