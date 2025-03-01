@@ -239,7 +239,7 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
 
     if requestForHint == "yes":
         score -= 3  # Deduct points for using a hint.
-        console.print(f"[bold red]-3 points for using hint! Current score: {score}[/bold red]")
+        #console.print(f"[bold red]-3 points for using hint! Current score: {score}[/bold red]")
         
         chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ").strip().lower()
         
@@ -291,15 +291,15 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
     console.print(Panel(
         # f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]\n"
         # f"───────────────────────────────────────────────────\n"
-        f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]\n\n"
-        f"[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]         [bold cyan]🔤 Current Word: {currentWord}[/bold cyan]",
+        f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]          [bold cyan]🔤 Current Word: {currentWord}[/bold cyan]\n\n"
+        f"[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]          [bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]",
         style="white",
         width=60,
         title=f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]",
         title_align="center"
     ))
     console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
-    console.print(f"[bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]\n")
+    #console.print(f"[bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]\n")
 
     score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
@@ -477,6 +477,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
 
 # Function to allow players to choose level of difficulty and word selection.
 def chooseGameMode():
+    printGameName()
     print(Back.BLUE + Fore.WHITE + " Selection Mode Menu ")
     console.print("[bold blue]Choose word selection mode:[/bold blue]\n")
     console.print("[bold blue]1. Enter start and end words[/bold blue]")
@@ -504,8 +505,6 @@ def chooseGameMode():
     
 # Choose difficulty level.
 def chooseDifficultyLevel():
-    printGameName()
-
     print("")
     print(Back.BLUE + Fore.WHITE + " Difficulty Mode Menu ")
     console.print("[bold blue]Choose difficulty level:[/bold blue]\n")
@@ -558,10 +557,35 @@ def printGameName():
     console.print(" [bold #8B4513]  W O R D   L A D D E R   G A M E 🪜[/bold #8B4513]".center(180))
     print("")
 
+def printManualMode():
+    os.system('cls') 
+    time.sleep(0.5)
+
+    print("")
+    console.print(" [bold blue]  M A N U A L   S E L E C T I O N   M O D E 🛠️[/bold blue]".center(180))
+    print("")
+
+def printAutomaticMode():
+    os.system('cls') 
+    time.sleep(0.5)
+
+    print("")
+    console.print(" [bold green]  A U T O M A T I C   S E L E C T I O N   M O D E ⚙️[/bold green]".center(180))
+    print("")
+
+def printMultiPlayerMode():
+    os.system('cls') 
+    time.sleep(0.5)
+
+    print("")
+    console.print(" [bold magenta]  M U L T I   P L A Y E R   M O D E 👥[/bold magenta]".center(180))
+    print("")
+
+
+
 # Main Function.
 def main():
-    printGameName()
-   
+
     # Predefined lists:
     # Beginner Mode.
     beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
@@ -605,6 +629,7 @@ def main():
 
         # Single Player - Automatic selection of start and end words.
         elif selectionMode == 2:
+            printAutomaticMode()
             while True:
                 difficulty = chooseDifficultyLevel()
                 
@@ -665,46 +690,49 @@ def main():
                         challengeCount = 0 
 
                 else:
+                    os.system('cls') 
                     break
 
         # Words chosen by player.
         elif selectionMode == 1: 
+            os.system('cls')
+            printManualMode() 
             lengthOfWord = 0
 
             startWord = input("Enter start word: ")
             while startWord not in WordLadderDictionary:
-                print("Error: Start word does not exist in the dictionary.\n")
-                startWord = input("Enter start word: ")
+                console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                startWord = input("\nEnter start word: ")
                 while len(startWord) != 3 and len(startWord) != 4 and len(startWord) != 5:
-                    print("You can only enter 3, 4 or 5 letter words.")
-                    startWord = input("Enter start word again: ")
+                    console.print("[bold blue]You can only enter 3, 4 or 5 letter words.[/bold blue]")
+                    startWord = input("\nEnter start word again: ")
 
-            goalWord = input("Enter goal word: ")
+            goalWord = input("\nEnter goal word: ")
             while goalWord not in WordLadderDictionary:
-                print("Error: Goal word does not exist in the dictionary.\n")
-                goalWord = input("Enter goal word: ")
+                console.print("\n[bold red]❌ Error: Goal word does not exist in the dictionary.[/bold red]")
+                goalWord = input("\nEnter goal word: ")
                 while len(goalWord) != 3 and len(goalWord) != 4 and len(goalWord) != 5:
-                    print("You can only enter 3, 4 or 5 letter words.")
-                    goalWord = input("Enter start word again: ")
+                    console.print("[bold blue]You can only enter 3, 4 or 5 letter words.[/bold blue]")
+                    goalWord = input("\nEnter start word again: ")
 
             while len(startWord) != len(goalWord):
-                print("Start Word and Goal Word should have the same length!")
-                print("Try again!")
-                startWord = input("Enter start word: ")
+                console.print("\n[bold red]❌ Error: Start Word and Goal Word should have the same length![/bold red]")
+                console.print("[bold blue]Try again![\bold blue]")
+                startWord = input("\nEnter start word: ")
                 while startWord not in WordLadderDictionary:
-                    print("Error: Start word does not exist in the dictionary.\n")
-                    startWord = input("Enter start word: ")
+                    console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                    startWord = input("\nEnter start word: ")
                     while len(startWord) != 3 and len(startWord) != 4 and len(startWord) != 5:
-                        print("You can only enter 3, 4 or 5 letter words.")
-                        startWord = input("Enter start word again: ")
+                        console.print("[bold blue]You can only enter 3, 4 or 5 letter words.[/bold blue]")
+                        startWord = input("\nEnter start word again: ")
 
                 goalWord = input("Enter goal word: ")
                 while goalWord not in WordLadderDictionary:
-                    print("Error: Goal word does not exist in the dictionary.\n")
-                    goalWord = input("Enter goal word: ")
+                    console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                    goalWord = input("\nEnter goal word: ")
                     while len(goalWord) != 3 and len(goalWord) != 4 and len(goalWord) != 5:
-                        print("You can only enter 3, 4 or 5 letter words.")
-                        goalWord = input("Enter start word again: ")
+                        console.print("[bold blue]You can only enter 3, 4 or 5 letter words.[/bold blue]")
+                        goalWord = input("\nEnter start word again: ")
 
             lengthOfWord = len(startWord)
             if lengthOfWord == 3:
@@ -719,17 +747,28 @@ def main():
             path = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
             
             while path is None:
-                print("No path exists between ", startWord , " and ", goalWord)
-                print("Try again!")
-                startWord = input("Enter start word: ")
+                console.print(f"\n[bold red]⛔ Oops! No path exists between {startWord} and {goalWord} [/bold red]")
+                console.print("[bold blue]Try again![/bold blue]")
+                startWord = input("\nEnter start word: ")
                 while startWord not in WordLadderDictionary:
-                    print("Error: Start word does not exist in the dictionary.\n")
-                    startWord = input("Enter start word: ")
+                    console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                    startWord = input("\nEnter start word: ")
 
                 goalWord = input("Enter goal word: ")
                 while goalWord not in WordLadderDictionary:
-                    print("Error: Goal word does not exist in the dictionary.\n")
-                    goalWord = input("Enter goal word: ")
+                    console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                    goalWord = input("\nEnter goal word: ")
+                
+                while len(startWord) != len(goalWord):
+                    console.print("\n[bold red]❌ Error: Start Word and Goal Word should have the same length![/bold red]")
+                    console.print("[bold blue]Try again![/bold blue]")
+                    startWord = input("\nEnter start word: ")
+                    while startWord not in WordLadderDictionary:
+                        console.print("\n[bold red]❌ Error: Start word does not exist in the dictionary.[/bold red]")
+                        startWord = input("\nEnter start word: ")
+                        while len(startWord) != 3 and len(startWord) != 4 and len(startWord) != 5:
+                            console.print("[bold blue]You can only enter 3, 4 or 5 letter words.[/bold blue]")
+                            startWord = input("\nEnter start word again: ")
 
                 path = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
             
@@ -742,7 +781,7 @@ def main():
             advancedMultiplayerCount = 0
             challengeMultiplayerCount = 0
 
-            print("Multiplayer Mode: ")
+            printMultiPlayerMode()
            
             while True:
 
@@ -753,8 +792,9 @@ def main():
                 # Beginner mode - Multiplayer.
                 if difficulty == 1:
                     
-                    player01Name = input("\nEnter name of Player 01: ")
-                    player02Name = input("Enter name of Player 02: ")
+                    player01Name = input("\nEnter name of Player 01 🎮: ")
+                    player02Name = input("Enter name of Player 02 🎮: ")
+
 
                     player01 = Player(player01Name, beginnersModeList[beginnerMultiplayerCount][0], 0, 0, False)
                     player02 = Player(player02Name, beginnersModeList[beginnerMultiplayerCount][0], 0, 0, False)
@@ -770,26 +810,33 @@ def main():
                         
                         if player01.hasWon == True and player02.hasWon == True:
                             if player01.NumberOfMoves < player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player01.name)
-                                print("Progess: ", player01.listOfMoves)
-                                print("Number of Moves: ", player01.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow]Winner of the Game is Player {player01.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player01.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player01.NumberOfMoves}[/bold green]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             elif player01.NumberOfMoves > player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player02.name)
-                                print("Progess: ", player02.listOfMoves)
-                                print("Number of Moves: ", player02.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow] Winner of the Game is Player {player02.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player02.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold blue]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             else:
-                                print("It's a draw")
+                                console.print(Panel(f"[bold cyan]🤝 It's a draw[/bold cyan]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
-
+                        
                     beginnerMultiplayerCount += 1
 
                 # Advanced Mode - Multiplayer.
                 elif difficulty == 2:
                     
-                    player01Name = input("Enter name of Player 01: ")
-                    player02Name = input("Enter name of Player 02: ")
+                    player01Name = input("\nEnter name of Player 01 🎮: ")
+                    player02Name = input("Enter name of Player 02 🎮: ")
+
 
                     player01 = Player(player01Name, advancedModeList[advancedMultiplayerCount][0], 0, 0, False)
                     player02 = Player(player02Name, advancedModeList[advancedMultiplayerCount][0], 0, 0, False)
@@ -805,26 +852,33 @@ def main():
                     
                         if player01.hasWon == True and player02.hasWon == True:
                             if player01.NumberOfMoves < player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player01.name)
-                                print("Progess: ", player01.listOfMoves)
-                                print("Number of Moves: ", player01.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow]Winner of the Game is Player {player01.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player01.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player01.NumberOfMoves}[/bold green]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             elif player01.NumberOfMoves > player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player02.name)
-                                print("Progess: ", player02.listOfMoves)
-                                print("Number of Moves: ", player02.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow] Winner of the Game is Player {player02.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player02.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold blue]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             else:
-                                print("It's a draw")
+                                console.print(Panel(f"[bold cyan]🤝 It's a draw[/bold cyan]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
-
                     advancedMultiplayerCount += 1
 
                 # Challenge Mode - Multiplayer.
                 elif difficulty == 3:
 
-                    player01Name = input("Enter name of Player 01: ")
-                    player02Name = input("Enter name of Player 02: ")
+                    player01Name = input("\nEnter name of Player 01 🎮: ")
+                    player02Name = input("Enter name of Player 02 🎮: ")
+
+
 
                     player01 = Player(player01Name,  challengeModeList[challengeMultiplayerCount][0], 0, 0, False)
                     player02 = Player(player02Name,  challengeModeList[challengeMultiplayerCount][0], 0, 0, False)
@@ -842,22 +896,28 @@ def main():
                         
                         if player01.hasWon == True and player02.hasWon == True:
                             if player01.NumberOfMoves < player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player01.name)
-                                print("Progess: ", player01.listOfMoves)
-                                print("Number of Moves: ", player01.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow]Winner of the Game is Player {player01.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player01.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player01.NumberOfMoves}[/bold green]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             elif player01.NumberOfMoves > player02.NumberOfMoves:
-                                print("Winner of the Game is Player ", player02.name)
-                                print("Progess: ", player02.listOfMoves)
-                                print("Number of Moves: ", player02.NumberOfMoves)
+                                console.print(Panel(f"🏅 [bold yellow] Winner of the Game is Player {player02.name}[/bold yellow]"
+                                f"\n📈 [bold blue]Progress: {player02.listOfMoves}[/bold blue]"
+                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold blue]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
                             else:
-                                print("It's a draw")
+                                console.print(Panel(f"[bold cyan]🤝 It's a draw[/bold cyan]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
+                                input()
                                 break
-                
                     challengeMultiplayerCount += 1
                 
                 elif difficulty == 4:
+                    os.system('cls') 
                     break
 
 if __name__ == "__main__":
