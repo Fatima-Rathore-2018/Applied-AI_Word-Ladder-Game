@@ -281,12 +281,16 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
     
     return score, ladderContinues
 
-def brokenLadder(graphHeuristics, startWord, goalWord, currentWord):
+def brokenLadder(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord):
         
     exploredPath = AStarSearch(graphHeuristics, startWord, goalWord)
+    bfsPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
+    ucsPath = uniformCostSearch(wordLadderGraph, startWord, goalWord)
 
     nextWord = giveHint(exploredPath, currentWord)
-    if nextWord:
+    bfsNextWord = giveHint(bfsPath, currentWord)
+    ucsNextWord = giveHint(ucsPath, currentWord)
+    if nextWord or bfsNextWord or ucsNextWord:
         broken = True
     else:
         broken = False # No hints means there is no word in the graph that can precede the current one so broken ladder.
@@ -327,7 +331,7 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
     console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
     score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
-    broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+    broken = brokenLadder(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord)
     
     if broken == False:
         console.print(f"\n[bold red]⛔ Oops! The Ladder is between {currentWord} and {goalWord} is broken! [/bold red]")
@@ -343,7 +347,7 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
         ))
         console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
-        broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+        broken = brokenLadder(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord)
 
     if score == -3:
         player.NumberOfMoves += 2
@@ -436,7 +440,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
 
         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
         
-        broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+        broken = brokenLadder(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord)
         
         if broken == False:
             console.print(f"\n[bold red]⛔ Oops! The Ladder is between {currentWord} and {goalWord} is broken! [/bold red]")
@@ -447,7 +451,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
             print(path)
             score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
-            broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+            broken = brokenLadder(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord)
 
             
         playerChoice = input("Enter next word: ")
@@ -650,7 +654,7 @@ def main():
     beginnersModeList = [("hot", "dog"), ("tie", "dye"),  ("cap", "mop"), ("sky", "fly"), ("pet", "pan"), ("cat", "dog"), ("cot", "mop"), ("wig", "mug"), ("cup", "pat"), ("rug", "hat"), ("dip", "fry"), ("ear", "eye")]
 
     # Advanced Mode.
-    advancedModeList = [("cold", "fall"), ("head", "tail"), ("slow", "down"), ("calf", "lamb"), ("many", "rule"), ("lost", "here"), ("hunt", "gone"), ("rich", "poor"), ("hook", "fish"), ("coal", "mine"), ("fish", "bird"), ("jump", "boat"), ("hair", "comb"), ("swim", "home")]
+    advancedModeList = [("slow", "down"), ("calf", "lamb"), ("lost", "here"), ("hunt", "gone"), ("rich", "poor"), ("cold", "fall"), ("many", "rule"), ("hook", "fish"), ("coal", "mine"), ("fish", "bird"), ("jump", "boat"), ("hair", "comb"), ("swim", "home"), ("head", "tail")]
 
     # Challenge Mode.
     challengeModeList = [("wheat", "bread"), ("eager", "minds"), ("sweet", "dream"), ("cross", "river"), ("black", "white"), ("whole", "point"), ("smart", "brain"), ("speed", "quick")]
@@ -766,7 +770,7 @@ def main():
                 print("Press Enter to continue...")
                 input()
                 os.system('cls')
-                printManualMode() 
+                printAutomaticMode() 
 
         # Words chosen by player.
         elif selectionMode == 1: 
@@ -849,6 +853,11 @@ def main():
             
             graphHeuristics = AssigningHeuristicCost(wordLadderGraph, "")
             gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWords[0], restrictedLetters[challengeCount], WordLadderDictionary)
+
+            print("Press Enter to continue...")
+            input()
+            os.system('cls')
+            chooseGameMode()
 
         # Multiplayer Mode.
         elif selectionMode == 3:
