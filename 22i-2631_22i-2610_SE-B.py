@@ -3,12 +3,14 @@ import string
 import os
 import time
 import sys
+import keyboard
 from typing import Text
 from colorama import init, Fore, Back, Style
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from rich.style import Style
+console = Console()
 
 init(autoreset=True)
 
@@ -22,6 +24,13 @@ class WordNode:
         self.actions = actions
         self.heuristic = heuristic # h(n)
         self.totalCost = totalCost # g(n)
+
+# Function to quit game.
+def quitGame():
+    console.print("\n\n[bold red]Exiting game...[/bold red]")
+    os._exit(0)
+
+keyboard.add_hotkey('q', quitGame)
 
 # Function to create a graph.
 def createGraph(wordLadderDictionary, difficulty, forbiddenWord, restrictedLetter):
@@ -406,6 +415,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
     exploredPath = []
     optimalNumberOfMoves = len(AStarSearch(graphHeuristics, startWord, goalWord))
     ladderContinues = True
+    actualNumberOfMoves = 0
 
     score = optimalNumberOfMoves * 10
     console.print(f"\n[bold green]Initial Score:[/bold green] {score} (Decreases with extra moves!)\n")
@@ -489,12 +499,13 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             console.print("[bold red]❌ -7 Invalid word choice. Try again.[/bold red]")
 
         numberOfTurns -= 1
+        actualNumberOfMoves += 1
         if numberOfTurns == 0:
             console.print("[bold red]❗ Number of turns have finished.[/bold red]")
             break
 
         # Check if score is to be updated or not.
-        if numberOfTurns > optimalNumberOfMoves:
+        if actualNumberOfMoves > optimalNumberOfMoves:
             score -= 5
 
     if currentWord == goalWord:
@@ -512,7 +523,6 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
         console.print(f"[bold yellow]Final Score: {score} [/bold yellow]")
         hasWon = False
 
-    time.sleep(5)
     print("")
     return hasWon
 
@@ -578,7 +588,8 @@ def displayGameRules():
         "> Transform the starting word into the target word\n"
         "> Shorter paths give you more points!\n"
         "> Watch out for forbidden words and restricted letters in Challenge Mode\n"
-        "> Use💡 hints if you're stuck (costs points)",
+        "> Use💡 hints if you're stuck (costs points)\n"
+        "> Press q at any point in the game to exit",
         style="white",
         width=60,
         title="[bold yellow]W O R D   L A D D E R   G A M E   R U L E S[/bold yellow]",
@@ -588,7 +599,6 @@ def displayGameRules():
     console.print("\n[bold yellow]Press Enter to continue...[/bold yellow]")
     randomInput = input()
     os.system('cls') 
-    printGameName()
 
 def printGameName():
     os.system('cls') 
@@ -733,6 +743,11 @@ def main():
                 else:
                     os.system('cls') 
                     break
+
+                print("Press Enter to continue...")
+                input()
+                os.system('cls')
+                printManualMode() 
 
         # Words chosen by player.
         elif selectionMode == 1: 
@@ -902,7 +917,7 @@ def main():
                             elif player01.NumberOfMoves > player02.NumberOfMoves:
                                 console.print(Panel(f"🏅 [bold yellow] Winner of the Game is Player {player02.name}[/bold yellow]"
                                 f"\n📈 [bold blue]Progress: {player02.listOfMoves}[/bold blue]"
-                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold blue]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold green]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
                                 console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
                                 input()
                                 break
@@ -946,7 +961,7 @@ def main():
                             elif player01.NumberOfMoves > player02.NumberOfMoves:
                                 console.print(Panel(f"🏅 [bold yellow] Winner of the Game is Player {player02.name}[/bold yellow]"
                                 f"\n📈 [bold blue]Progress: {player02.listOfMoves}[/bold blue]"
-                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold blue]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
+                                f"\n🎲 [bold green]Number of Moves: {player02.NumberOfMoves}[/bold green]", title="[bold yellow]Match Result[/bold yellow]", style="white", width=60))
                                 console.print("[bold yellow]Press Enter to Continue...[/bold yellow]")
                                 input()
                                 break
@@ -960,6 +975,11 @@ def main():
                 elif difficulty == 4:
                     os.system('cls') 
                     break
+
+                # print("Press Enter to continue...")
+                # input()
+                os.system('cls')
+                printMultiPlayerMode() 
 
 if __name__ == "__main__":
     main()
