@@ -64,7 +64,6 @@ def SequenceOfSteps(WordLadderGraph, startState, goalState):
         currentNode = WordLadderGraph[currentNode.parent]
     
     finalPath.insert(0, startState)
-    # print(finalPath)
 
     return finalPath
 
@@ -107,8 +106,6 @@ def AStarSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
-            # for word, node in WordLadderGraph.items():
-            #     print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.totalCost}")
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -139,8 +136,6 @@ def AStarSearch(WordLadderGraph, startState, goalState):
                     WordLadderGraph[child[0]].parent=frontier[child[0]][0]
                     WordLadderGraph[child[0]].totalCost=currentCost
 
-        #print(explored)
-
 # Function for Uniform-Cost Search (UCS)
 def uniformCostSearch(WordLadderGraph, startState, goalState):
     frontier = dict()
@@ -154,9 +149,6 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
 
         # Goal Test.
         if currentNode == goalState:
-            # Print graph.
-            # for word, node in WordLadderGraph.items():
-            #     print(f"{word}: {node.state}, {node.parent}, {node.actions}, {node.heuristic}, {node.totalCost}")
             return SequenceOfSteps(WordLadderGraph, startState, goalState)
         
         # Add the node to explored list.
@@ -174,9 +166,6 @@ def uniformCostSearch(WordLadderGraph, startState, goalState):
                 WordLadderGraph[childNode[0]].parent = frontier[childNode[0]][0]
                 WordLadderGraph[childNode[0]].totalCost = frontier[childNode[0]][1]
 
-        #print(explored)
-
-                
 # Function to find the shortest path using Breadth First Search.
 def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
     frontier = dict() #To-Be-Explored Nodes -> FIFO QUEUE
@@ -202,7 +191,6 @@ def BreadthFirstSearch(WordLadderGraph, startState ,goalState):
 
         #Expand the currentNode/ Explore the child nodes of the current node.
         for childNode in WordLadderGraph[currentNode].actions:
-            #print(explored)
             #If the childNode is not in frontier and explored
             if childNode[0] not in frontier and childNode[0] not in explored:
                 
@@ -222,7 +210,7 @@ def giveHint(path, currentWord):
         currentWordIndex = path.index(currentWord)
         return path[currentWordIndex + 1]
     
-    print("No hints available anymore.")
+    console.print("[bold red]❌ No more hints available![/bold red]")
     return None
 
 # Validate if a word exists.
@@ -244,18 +232,20 @@ def validateExistenceOfWordInDictionary(currentWord, playerChoice, wordLadderDic
 def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path):
     ladderContinues = True
     while True:
-        requestForHint = input("\nDo you want a hint? (yes/no): ").strip().lower()
+        requestForHint = input("\n🤔 Would you like a hint? (yes/no): ").strip().lower()
         if requestForHint in ["yes", "no"]:
             break
-        print("Invalid Input. Enter yes/no: ") 
+        console.print("[bold red]❌ Invalid input. Please enter 'yes' or 'no'.[/bold red]")
 
     if requestForHint == "yes":
         score -= 3  # Deduct points for using a hint.
+        console.print(f"[bold red]-3 points for using hint! Current score: {score}[/bold red]")
+        
         chooseSearchAlgorithm = input("\nChoose search algorithm (bfs/ucs/astar): ").strip().lower()
         
         while chooseSearchAlgorithm != "bfs" and chooseSearchAlgorithm != "ucs" and chooseSearchAlgorithm != "astar":
-            print("Invalid algorithm choice.")
-            chooseSearchAlgorithm = input("Enter algorithm again: ")
+            console.print("[bold red]❌ Invalid algorithm choice.[/bold red]")
+            chooseSearchAlgorithm = input("🔄 Please try again (bfs/ucs/astar): ")
 
         if chooseSearchAlgorithm == "bfs":
             exploredPath = BreadthFirstSearch(wordLadderGraph, startWord, goalWord)
@@ -266,11 +256,12 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
 
         nextWord = giveHint(exploredPath, currentWord)
         if nextWord:
-            print("Hint for next word:", nextWord)
+            console.print(Panel(
+                f"[bold green]💡 Suggested next word: {nextWord}[/bold green]",
+                style="green", width=60
+            ))
         else:
             ladderContinues = False # No hints means there is no word in the graph that can precede the current one so broken ladder.
-            # path.pop()
-            # print(".........................NEW PATH: ", path)
     
     return score, ladderContinues
 
@@ -290,15 +281,25 @@ class Player:
 
 #The gameplay function for Multiplayer Mode.
 def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary, player):
-    time.sleep(1)
+    time.sleep(0.8)
     os.system("cls")
+
     score = 0
     currentWord = player.currentWord
     path = player.listOfMoves
-    print("Turn of Player ", player.name)
-    print("Current Word: ", currentWord)
-    print("Progess: ", player.listOfMoves)
-    print("Number of Moves: ", player.NumberOfMoves)
+    
+    console.print(Panel(
+        # f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]\n"
+        # f"───────────────────────────────────────────────────\n"
+        f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]\n\n"
+        f"[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]         [bold cyan]🔤 Current Word: {currentWord}[/bold cyan]",
+        style="white",
+        width=60,
+        title=f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]",
+        title_align="center"
+    ))
+    console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
+    console.print(f"[bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]\n")
 
     score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
@@ -307,18 +308,18 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
 
     playerChoice = input("Enter next word: ")
     while isDuplicate(playerChoice, path):
-        print("The word ", playerChoice, " has already been entered.")
+        console.print(f"[bold red]❌ The word {playerChoice} has already been entered. Try another.[/bold red]")
         playerChoice = input("Enter a non-duplicate word: ")
 
     # Check if the word entered is a banned word.
     while playerChoice == forbiddenWord:
-        print(playerChoice, " is a banned word. Please choose another one.")
+        console.print(f"[bold red]❌ {playerChoice} is a forbidden word! Try another.[/bold red]")
         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
         if not ladderContinues:
                 break 
         playerChoice = input("Now, enter word again: ")
         while isDuplicate(playerChoice, path):
-            print("The word ", playerChoice, " has already been entered.")
+            console.print(f"[bold red]❌ The word {playerChoice} has already been entered. Try another.[/bold red]")
             playerChoice = input("Enter a non-duplicate word: ")    
 
     
@@ -330,21 +331,21 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
             isValid = True
             for letter in playerChoice:
                 if letter == restrictedLetter:
-                    print("The word ", playerChoice, " has a restricted letter ", letter)
+                    console.print(f"[bold red]❌ The word {playerChoice} has a restricted letter! Try another.[/bold red]")
 
                     score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
                     playerChoice = input("Now, enter word again: ")
                     while isDuplicate(playerChoice, path):
-                        print("The word ", playerChoice, " has already been entered.")
+                        console.print(f"[bold red]❌ The word {playerChoice} has already been entered. Try another.[/bold red]")
                         playerChoice = input("Enter a non-duplicate word: ")
 
                     while playerChoice == forbiddenWord:
-                        print(playerChoice, " is a banned word. Please choose another one.")
+                        console.print(f"[bold red]❌ {playerChoice} is a forbidden word! Try another.[/bold red]")
                         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
                         playerChoice = input("Now, enter word again: ")
                         while isDuplicate(playerChoice, path):
-                            print("The word ", playerChoice, " has already been entered.")
+                            console.print(f"[bold red]❌ The word {playerChoice} has already been entered. Try another.[/bold red]")
                             playerChoice = input("Enter a non-duplicate word: ")
 
                     isValid = False
@@ -361,14 +362,14 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
         player.listOfMoves = path
         player.NumberOfMoves += 1
     else:
-        print("Invalid word choice.\n")
+        console.print("[bold red]❌ Invalid word choice.[/bold red]\n")
 
     if player.currentWord == goalWord:
+        console.print("\n[bold yellow]🎉 Congratulations! You've reached the goal word![/bold yellow]")
         player.hasWon = True
 
 
     return player
-
 
 # The gameplay function.
 def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forbiddenWord, restrictedLetter, wordLadderDictionary):
@@ -380,19 +381,13 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
     optimalNumberOfMoves = len(AStarSearch(graphHeuristics, startWord, goalWord))
     ladderContinues = True
 
-    # print("\n----- BFS: ", BreadthFirstSearch(wordLadderGraph, startWord, goalWord))
-    # print("----- UCS: ", uniformCostSearch(wordLadderGraph, startWord, goalWord))
-    # print("----- A*: ", AStarSearch(graphHeuristics, startWord, goalWord))
-    # print("\n")
     score = optimalNumberOfMoves * 10
-    console.print(f"[bold green] Initial Score:[/bold green] {score} (Decreases with extra moves!)\n")
+    console.print(f"\n[bold green]Initial Score:[/bold green] {score} (Decreases with extra moves!)\n")
 
     while currentWord != goalWord:
         time.sleep(1)
         os.system("cls")
         console.print(Panel(f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]         [bold green] 📊 Current Score: {score}[/bold green]\n\n[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]         [bold cyan] 🔤 Current Word: {currentWord}[/bold cyan]", style="white", width=60))
-
-        #console.print(f"[bold green] Current Score:[/bold green] {score}\n")
 
         console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
 
@@ -450,7 +445,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             path.append(currentWord)
         else:
             score -= 7 # Score will decrease by 7 if word does not exist in the ladder.
-            console.print("[bold red]❌ Invalid word choice. Try again.[/bold red]")
+            console.print("[bold red]❌ -7 Invalid word choice. Try again.[/bold red]")
 
         numberOfTurns -= 1
         if numberOfTurns == 0:
@@ -476,47 +471,44 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
         console.print(f"[bold yellow]Final Score: {score} [/bold yellow]")
         hasWon = False
 
+    time.sleep(5)
+    print("")
     return hasWon
 
 # Function to allow players to choose level of difficulty and word selection.
 def chooseGameMode():
-
     print(Back.BLUE + Fore.WHITE + " Selection Mode Menu ")
     console.print("[bold blue]Choose word selection mode:[/bold blue]\n")
-    # print("1️⃣   Enter start and end words")
-    # print("2️⃣   Automatic selection of start and end words")
-    # print("3️⃣   Multiplayer with Automatic selection of start and end words")
-    # print(Fore.RED + "4️⃣   Exit\n")
     console.print("[bold blue]1. Enter start and end words[/bold blue]")
     console.print("[bold blue]2. Automatic selection of start and end words[/bold blue]")
     console.print("[bold blue]3. Multiplayer with Automatic selection of start and end words[/bold blue]")
-    console.print("[bold blue]4. Exit\n")
+    console.print("[bold blue]4. Help[/bold blue]")
+    console.print("[bold blue]5. Exit\n")
 
-    wordSelectionMode = input("Enter your choice (1/2/3/4): ")
+    wordSelectionMode = input("Enter your choice (1/2/3/4/5): ")
     wordSelectionMode = int(wordSelectionMode) 
 
-    while wordSelectionMode < 1 or wordSelectionMode > 4:
+    while wordSelectionMode < 1 or wordSelectionMode > 5:
         console.print("\n[bold red]❌ Invalid Input.[/]\n")
         print(Back.BLUE + Fore.WHITE + " Selection Mode Menu ")
-        console.print("[bold blue]Choose word selection mode:[/bold blue]\n")
-        print("1️⃣   Enter start and end words")
-        print("2️⃣   Automatic selection of start and end words")
-        print("3️⃣   Multiplayer with Automatic selection of start and end words")
-        print(Fore.RED + "4️⃣   Exit\n")
-        wordSelectionMode = input("\nEnter your choice (1/2/3/4): ")
+        console.print("[bold blue]1. Enter start and end words[/bold blue]")
+        console.print("[bold blue]2. Automatic selection of start and end words[/bold blue]")
+        console.print("[bold blue]3. Multiplayer with Automatic selection of start and end words[/bold blue]")
+        console.print("[bold blue]4. Help[/bold blue]")
+        console.print("[bold blue]5. Exit\n")
+
+        wordSelectionMode = input("Enter your choice (1/2/3/4/5): ")
         wordSelectionMode = int(wordSelectionMode) 
 
     return wordSelectionMode
     
 # Choose difficulty level.
 def chooseDifficultyLevel():
+    printGameName()
+
     print("")
     print(Back.BLUE + Fore.WHITE + " Difficulty Mode Menu ")
     console.print("[bold blue]Choose difficulty level:[/bold blue]\n")
-    # print("1️⃣   Beginner Mode (Simple word ladders)")
-    # print("2️⃣   Advanced Mode (Longer and complex ladders)")
-    # print("3️⃣   Challenge Mode (Restricted Letters, banned words etc.)")
-    # print("4️⃣   Go back to main menu.")
     console.print("[bold green]1. Beginner Mode (Simple word ladders)[/bold green]")
     console.print("[bold dark_orange]2. Advanced Mode (Longer and complex ladders)[/bold dark_orange]")
     console.print("[bold red]3. Challenge Mode (Restricted Letters, banned words etc.)[/bold red]")
@@ -524,25 +516,51 @@ def chooseDifficultyLevel():
     difficulty = int(input("\nEnter your choice (1/2/3/4): "))
 
     while difficulty < 1 or difficulty > 4:
-        print("Choose difficulty level:")
-        print("1. Beginner Mode (Simple word ladders)")
-        print("2. Advanced Mode (Longer and complex ladders)")
-        print("3. Challenge Mode (Restricted Letters, banned words etc.)")
-        print("4. Go back to main menu.")
-        difficulty = int(input("\nEnter your choice (1/2/3): "))
+        console.print("\n[bold red]❌ Invalid Input.[/]\n")
+        console.print("[bold green]1. Beginner Mode (Simple word ladders)[/bold green]")
+        console.print("[bold dark_orange]2. Advanced Mode (Longer and complex ladders)[/bold dark_orange]")
+        console.print("[bold red]3. Challenge Mode (Restricted Letters, banned words etc.)[/bold red]")
+        console.print("[bold blue]4. Go back to main menu.[/bold blue]")
+        difficulty = int(input("\nEnter your choice (1/2/3/4): "))
 
     return difficulty
 
 console = Console()
 
+def displayGameRules():
+    os.system('cls') 
+    time.sleep(0.5) 
+    
+    console.print(Panel(
+        "[bold cyan]How to Play:[/bold cyan]\n"
+        "> Change one letter at a time to form new words\n"
+        "> Each word must be valid in the dictionary\n"
+        "> Transform the starting word into the target word\n"
+        "> Shorter paths give you more points!\n"
+        "> Watch out for forbidden words and restricted letters in Challenge Mode\n"
+        "> Use💡 hints if you're stuck (costs points)",
+        style="white",
+        width=60,
+        title="[bold yellow]W O R D   L A D D E R   G A M E   R U L E S[/bold yellow]",
+        title_align="center"
+    ))
+    
+    console.print("\n[bold yellow]Press Enter to continue...[/bold yellow]")
+    randomInput = input()
+    os.system('cls') 
+    printGameName()
+
+def printGameName():
+    os.system('cls') 
+    time.sleep(0.5)
+
+    print("")
+    console.print(" [bold #8B4513]  W O R D   L A D D E R   G A M E 🪜[/bold #8B4513]".center(180))
+    print("")
+
 # Main Function.
 def main():
-
-    #print("════════════════════════════════════════════════".center(150))
-    print("")
-    console.print(" [bold #8B4513]  W O R D   L A D D E R   G A M E 🪜[/bold #8B4513]".center(175))
-    print("")
-    #print("════════════════════════════════════════════════".center(150))
+    printGameName()
    
     # Predefined lists:
     # Beginner Mode.
@@ -575,12 +593,17 @@ def main():
 
     while 1:
         selectionMode = chooseGameMode()
-
-        # # Creating the graph.
-        # wordLadderGraph = createGraph(WordLadderDictionary, difficulty, "", "")
     
-        if selectionMode == 4:
+        # Exit game.
+        if selectionMode == 5:
+            console.print("\n[bold red]Exiting Game...[/]\n")
             exit(0)
+
+        # See game rules for help.
+        elif selectionMode == 4:
+            displayGameRules()
+
+        # Single Player - Automatic selection of start and end words.
         elif selectionMode == 2:
             while True:
                 difficulty = chooseDifficultyLevel()
@@ -592,19 +615,14 @@ def main():
                 if difficulty == 1:
 
                     graphHeuristics = AssigningHeuristicCost(wordLadderGraph, beginnersModeList[beginnerCount][1])
-
-                    # print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                    # print("-> UCS: ", uniformCostSearch(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                    # print("-> A*: ", AStarSearch(graphHeuristics, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1]))
-                    # print("\n")
                 
                     canProceed = gameplayFunction(wordLadderGraph, beginnersModeList[beginnerCount][0], beginnersModeList[beginnerCount][1], graphHeuristics, "", "", WordLadderDictionary)
                     
                     if canProceed == True:
-                        print("You won! You can proceed to the next word pair.")
+                        console.print("\n[bold green]🎉 You won! You can proceed to the next word pair.[/bold green]")
                         beginnerCount += 1
                     else:
-                        print("You lost! To move to the next word pair, win this level.")
+                        console.print("\n[bold red]❌ You lost! To move to the next word pair, win this level.[/bold red]")
 
                     if(beginnerCount == len(beginnersModeList)):
                         print("You've Completed Beginner Level!")
@@ -614,19 +632,14 @@ def main():
                 elif difficulty == 2:
                 
                     graphHeuristics = AssigningHeuristicCost(wordLadderGraph, advancedModeList[advancedCount][1])
-
-                    print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                    print("-> UCS: ", uniformCostSearch(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                    print("-> A*: ", AStarSearch(graphHeuristics, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1]))
-                    print("\n")
                 
                     canProceed = gameplayFunction(wordLadderGraph, advancedModeList[advancedCount][0], advancedModeList[advancedCount][1], graphHeuristics, "", "", WordLadderDictionary)
 
                     if canProceed == True:
-                        print("You won! You can proceed to the next word pair.")
+                        console.print("\n[bold green]🎉 You won! You can proceed to the next word pair.[/bold green]")
                         advancedCount += 1
                     else:
-                        print("You lost! To move to the next word pair, win this level.")
+                        console.print("\n[bold red]❌ You lost! To move to the next word pair, win this level.[/bold red]")
 
                     if(advancedCount == len(advancedModeList)):
                         print("You've Completed Beginner Level!")
@@ -638,19 +651,14 @@ def main():
                     wordLadderGraphF = createGraph(WordLadderDictionary, difficulty, forbiddenWords[challengeCount], restrictedLetters[challengeCount])
 
                     graphHeuristics = AssigningHeuristicCost(wordLadderGraphF, challengeModeList[challengeCount][1])
-
-                    print("\n-> BFS: ", BreadthFirstSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                    print("-> UCS: ", uniformCostSearch(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                    print("-> A*: ", AStarSearch(graphHeuristics, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1]))
-                    print("\n")
                 
                     canProceed = gameplayFunction(wordLadderGraphF, challengeModeList[challengeCount][0], challengeModeList[challengeCount][1], graphHeuristics, forbiddenWords[challengeCount], restrictedLetters[challengeCount], WordLadderDictionary)
 
                     if canProceed == True:
-                        print("You won! You can proceed to the next word pair.")
+                        console.print("\n[bold green]🎉 You won! You can proceed to the next word pair.[/bold green]")
                         challengeCount += 1
                     else:
-                        print("You lost! To move to the next word pair, win this level.")
+                        console.print("\n[bold red]❌ You lost! To move to the next word pair, win this level.[/bold red]")
 
                     if(challengeCount == len(challengeModeList)):
                         print("You've Completed Beginner Level!")
@@ -745,7 +753,7 @@ def main():
                 # Beginner mode - Multiplayer.
                 if difficulty == 1:
                     
-                    player01Name = input("Enter name of Player 01: ")
+                    player01Name = input("\nEnter name of Player 01: ")
                     player02Name = input("Enter name of Player 02: ")
 
                     player01 = Player(player01Name, beginnersModeList[beginnerMultiplayerCount][0], 0, 0, False)
@@ -761,7 +769,6 @@ def main():
                             player02 =  gameplayFunctionMutlplayerMode(wordLadderGraph, beginnersModeList[beginnerMultiplayerCount][0], beginnersModeList[beginnerMultiplayerCount][1], graphHeuristics, "", "", WordLadderDictionary, player02)
                         
                         if player01.hasWon == True and player02.hasWon == True:
-                            print("========================= WINNER ================================")
                             if player01.NumberOfMoves < player02.NumberOfMoves:
                                 print("Winner of the Game is Player ", player01.name)
                                 print("Progess: ", player01.listOfMoves)
