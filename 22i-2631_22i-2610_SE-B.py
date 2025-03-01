@@ -231,6 +231,7 @@ def validateExistenceOfWordInDictionary(currentWord, playerChoice, wordLadderDic
 
 def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path):
     ladderContinues = True
+    nextWord = ""
     while True:
         requestForHint = input("\n🤔 Would you like a hint? (yes/no): ").strip().lower()
         if requestForHint in ["yes", "no"]:
@@ -393,6 +394,17 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
 
         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
 
+        if ladderContinues == False:
+            console.print(f"\n[bold red]⛔ Oops! The Ladder is between {currentWord} and {goalWord} is broken! [/bold red]")
+            path.pop()
+            currentWord = path[-1]
+            console.print(f"\n[bold green]✅ The {currentWord} has been removed from the ladder! Try a new word or take the hint! [/bold green]")
+            console.print(Panel(f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]         [bold green] 📊 Current Score: {score}[/bold green]\n\n[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]         [bold cyan] 🔤 Current Word: {currentWord}[/bold cyan]", style="white", width=60))
+            console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
+            print(path)
+            score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+
+            
         playerChoice = input("Enter next word: ")
         while isDuplicate(playerChoice, path):
             console.print(f"[bold red]❌ The word {playerChoice} has already been entered. Try another.[/bold red]")
@@ -444,6 +456,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             currentWord = playerChoice
             path.append(currentWord)
         else:
+            print(path)
             score -= 7 # Score will decrease by 7 if word does not exist in the ladder.
             console.print("[bold red]❌ -7 Invalid word choice. Try again.[/bold red]")
 
