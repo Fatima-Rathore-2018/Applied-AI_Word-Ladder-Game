@@ -737,7 +737,7 @@ def main():
                         console.print("\n[bold red]❌ You lost! To move to the next word pair, win this level.[/bold red]")
 
                     if(advancedCount == len(advancedModeList)):
-                        print("You've Completed Beginner Level!")
+                        print("You've Completed Advanced Level!")
                         advancedCount = 0 
 
                 # Challenge mode - Single Player.
@@ -756,7 +756,7 @@ def main():
                         console.print("\n[bold red]❌ You lost! To move to the next word pair, win this level.[/bold red]")
 
                     if(challengeCount == len(challengeModeList)):
-                        print("You've Completed Beginner Level!")
+                        print("You've Completed Challenge Level!")
                         challengeCount = 0 
 
                 else:
