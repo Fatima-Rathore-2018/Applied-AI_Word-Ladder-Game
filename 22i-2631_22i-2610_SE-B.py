@@ -1,3 +1,4 @@
+#22i-2631 Fatima Rathore - 22i-2610 Noor Fatima - SE-B
 import json
 import string
 import os
@@ -574,8 +575,6 @@ def chooseDifficultyLevel():
         difficulty = int(input("\nEnter your choice (1/2/3/4): "))
 
     return difficulty
-
-console = Console()
 
 def displayGameRules():
     os.system('cls') 
