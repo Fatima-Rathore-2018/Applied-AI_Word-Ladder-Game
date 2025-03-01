@@ -209,8 +209,6 @@ def giveHint(path, currentWord):
     if currentWord in path:
         currentWordIndex = path.index(currentWord)
         return path[currentWordIndex + 1]
-    
-    console.print("[bold red]❌ No more hints available![/bold red]")
     return None
 
 # Validate if a word exists.
@@ -262,9 +260,22 @@ def requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, curren
                 style="green", width=60
             ))
         else:
+            console.print("[bold red]❌ No more hints available![/bold red]")
             ladderContinues = False # No hints means there is no word in the graph that can precede the current one so broken ladder.
     
     return score, ladderContinues
+
+def brokenLadder(graphHeuristics, startWord, goalWord, currentWord):
+        
+    exploredPath = AStarSearch(graphHeuristics, startWord, goalWord)
+
+    nextWord = giveHint(exploredPath, currentWord)
+    if nextWord:
+        broken = True
+    else:
+        broken = False # No hints means there is no word in the graph that can precede the current one so broken ladder.
+
+    return broken
 
 # Function to check for duplicates in the path.
 def isDuplicate(word, path):
@@ -290,8 +301,6 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
     path = player.listOfMoves
     
     console.print(Panel(
-        # f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]\n"
-        # f"───────────────────────────────────────────────────\n"
         f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]          [bold cyan]🔤 Current Word: {currentWord}[/bold cyan]\n\n"
         f"[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]          [bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]",
         style="white",
@@ -300,9 +309,25 @@ def gameplayFunctionMutlplayerMode(wordLadderGraph, startWord, goalWord, graphHe
         title_align="center"
     ))
     console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
-    #console.print(f"[bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]\n")
-
     score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+
+    broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+    
+    if broken == False:
+        console.print(f"\n[bold red]⛔ Oops! The Ladder is between {currentWord} and {goalWord} is broken! [/bold red]")
+        path.pop()
+        currentWord = path[-1]
+        console.print(Panel(
+            f"[bold bright_red]🎯 Target Word:   {goalWord}[/bold bright_red]          [bold cyan]🔤 Current Word: {currentWord}[/bold cyan]\n\n"
+            f"[bold magenta]🏁 Starting Word: {startWord}[/bold magenta]          [bold green]🎲 Number of Moves: {player.NumberOfMoves}[/bold green]",
+            style="white",
+            width=60,
+            title=f"[bold yellow]🎮 Player {player.name}'s Turn[/bold yellow]",
+            title_align="center"
+        ))
+        console.print(Panel(f"[bold blue]📈 Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
+        score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+        broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
 
     if score == -3:
         player.NumberOfMoves += 2
@@ -393,8 +418,10 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
         console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
 
         score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
-
-        if ladderContinues == False:
+        
+        broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
+        
+        if broken == False:
             console.print(f"\n[bold red]⛔ Oops! The Ladder is between {currentWord} and {goalWord} is broken! [/bold red]")
             path.pop()
             currentWord = path[-1]
@@ -403,6 +430,7 @@ def gameplayFunction(wordLadderGraph, startWord, goalWord, graphHeuristics, forb
             console.print(Panel(f"[bold blue]📈 Your Progress: {' → '.join(path)}[/bold blue]", style="white", width=60))
             print(path)
             score, ladderContinues = requestForHint(wordLadderGraph, graphHeuristics, startWord, goalWord, currentWord, score, path)
+            broken = brokenLadder(graphHeuristics, startWord, goalWord, currentWord)
 
             
         playerChoice = input("Enter next word: ")
